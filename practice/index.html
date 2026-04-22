@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Questions — ML Prep</title>
+<meta name="description" content="12 ML interview questions across NLP, Architecture, Training, and Evaluation — with detailed answers.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;
+  --accent-2: #ff6b4a;
+  --blue: #7aa7d9;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+/* ===== MASTHEAD ===== */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  height: 52px;
+}
+.masthead .brand {
+  color: var(--ink);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; align-items: stretch; }
+.masthead nav a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--rule);
+  font-size: 0.72rem;
+}
+.masthead nav a:hover { color: var(--accent); }
+.masthead nav a.active { color: var(--ink); }
+.nav-cta {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-left: 1px solid var(--rule);
+  background: var(--accent);
+  color: #0e0e10 !important;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  padding: 4rem 2rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+.breadcrumb {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.breadcrumb a { color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb span { color: var(--rule); }
+
+h1.page-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+h1.page-title em { font-style: italic; color: var(--accent); }
+
+.page-sub {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  margin-top: 0.75rem;
+  max-width: 48ch;
+  line-height: 1.65;
+}
+.header-stat {
+  flex-shrink: 0;
+  text-align: right;
+}
+.header-stat .big-num {
+  font-family: var(--serif);
+  font-size: 3.5rem;
+  font-weight: 300;
+  line-height: 1;
+  display: block;
+}
+.header-stat .big-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  overflow-x: auto;
+}
+.filter-tab {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 1rem 1.4rem;
+  cursor: pointer;
+  color: var(--ink-faint);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.filter-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.filter-tab:hover:not(.active) { color: var(--ink-dim); }
+
+/* ===== QUESTIONS LIST ===== */
+.questions-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+}
+
+.questions-group { margin-top: 2.5rem; display: none; }
+.questions-group.visible { display: block; }
+.questions-group.all-group { display: block; }
+
+.group-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 1.25rem 0 0.75rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.group-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+/* Details/Summary accordion */
+details {
+  border-bottom: 1px solid var(--rule);
+}
+details[open] { background: var(--bg-elev); }
+details[open] summary { border-bottom: 1px solid var(--rule); }
+
+summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.25rem 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: background 0.15s;
+  user-select: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::marker { display: none; }
+summary:hover { background: rgba(255,255,255,0.02); }
+
+.q-number {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  width: 2rem;
+  flex-shrink: 0;
+}
+.q-body { flex: 1; }
+.q-text {
+  font-size: 0.97rem;
+  color: var(--ink);
+  line-height: 1.45;
+  display: block;
+}
+.q-chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+.chip {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid var(--rule);
+  color: var(--ink-faint);
+}
+.chip.nlp    { border-color: rgba(122,167,217,0.35); color: var(--blue); }
+.chip.arch   { border-color: rgba(232,197,71,0.3);   color: var(--accent); }
+.chip.train  { border-color: rgba(255,107,74,0.25);  color: var(--accent-2); }
+.chip.eval   { border-color: rgba(143,185,150,0.35); color: var(--green); }
+.chip.hard   { border-color: rgba(255,107,74,0.25);  color: var(--accent-2); }
+.chip.medium { border-color: var(--rule);             color: var(--ink-faint); }
+.chip.easy   { border-color: rgba(143,185,150,0.3);  color: var(--green); }
+
+.q-toggle {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.2s;
+}
+details[open] .q-toggle { transform: rotate(90deg); color: var(--accent); }
+
+/* Answer body */
+.answer {
+  padding: 1.5rem 1.75rem 1.75rem 5rem;
+}
+.answer p {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  max-width: 72ch;
+}
+.answer p:last-child { margin-bottom: 0; }
+.answer strong { color: var(--ink); font-weight: 500; }
+.answer code {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  background: rgba(232,197,71,0.06);
+  padding: 0.05em 0.3em;
+}
+.answer ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.answer ul li {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+.answer ul li::before {
+  content: '·';
+  color: var(--accent);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+footer nav { display: flex; gap: 1.5rem; }
+footer a { color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--ink-dim); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .masthead nav { display: none; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .header-stat { text-align: left; }
+  .answer { padding: 1.25rem 1.5rem; }
+  footer { flex-direction: column; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <a href="../" class="brand">ML <span>Prep</span></a>
+  <nav>
+    <a href="../courses/">Courses</a>
+    <a href="./" class="active">Practice</a>
+    <a href="../glossary/">Glossary</a>
+  </nav>
+  <a href="../courses/" class="nav-cta">Browse Courses →</a>
+</header>
+
+<div class="page-header">
+  <div>
+    <div class="breadcrumb">
+      <a href="../">Home</a>
+      <span>/</span>
+      <span style="color: var(--ink-dim);">Practice</span>
+    </div>
+    <h1 class="page-title">Practice <em>questions</em>.</h1>
+    <p class="page-sub">ML interview questions mapped to each topic — with detailed answers. Filter by category and expand to reveal the answer.</p>
+  </div>
+  <div class="header-stat">
+    <span class="big-num">12</span>
+    <span class="big-label">Questions</span>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-tab active" data-filter="all">All</button>
+  <button class="filter-tab" data-filter="nlp">NLP</button>
+  <button class="filter-tab" data-filter="arch">Architecture</button>
+  <button class="filter-tab" data-filter="train">Training</button>
+  <button class="filter-tab" data-filter="eval">Evaluation</button>
+</div>
+
+<div class="questions-container">
+
+  <!-- NLP -->
+  <div class="questions-group all-group" data-group="nlp">
+    <div class="group-label">NLP</div>
+
+    <details>
+      <summary>
+        <span class="q-number">01</span>
+        <div class="q-body">
+          <span class="q-text">Explain the bottleneck problem in seq2seq models and how attention solves it.</span>
+          <div class="q-chips">
+            <span class="chip nlp">NLP</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>In a vanilla seq2seq model, the encoder processes the entire input sequence and compresses it into a single fixed-length vector — the final hidden state. The decoder then generates the output from this one vector. For short inputs this works fine, but for long sequences the single vector can't hold all the relevant information; <strong>early tokens get diluted</strong> or forgotten as the encoder processes more of the sequence.</p>
+        <p>Bahdanau attention solves this by letting the decoder dynamically attend to different encoder hidden states at each step. Instead of one fixed context vector, the decoder computes a <strong>fresh context vector cᵢ for each output position</strong>:</p>
+        <ul>
+          <li>Score each encoder state hⱼ against the previous decoder state sᵢ₋₁ using a learned score function</li>
+          <li>Normalize the scores via softmax to get attention weights αᵢⱼ</li>
+          <li>Compute <code>cᵢ = Σⱼ αᵢⱼ · hⱼ</code> — a weighted sum that focuses on the relevant source positions</li>
+        </ul>
+        <p>The decoder no longer has to read everything from a single vector. It has direct, differentiable access to all encoder states, weighted by relevance.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">02</span>
+        <div class="q-body">
+          <span class="q-text">What is the difference between Bahdanau (additive) and Luong (multiplicative) attention?</span>
+          <div class="q-chips">
+            <span class="chip nlp">NLP</span>
+            <span class="chip arch">Architecture</span>
+            <span class="chip hard">Hard</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p><strong>Bahdanau (additive) attention</strong> uses a learned feed-forward network to compute alignment scores:<br><code>e_ij = vᵀ tanh(W₁s_{i-1} + W₂h_j)</code>. It introduces parameters W₁, W₂, and v. The score is computed before the decoder generates the current output token (it uses the previous decoder state s_{i-1}).</p>
+        <p><strong>Luong (multiplicative) attention</strong> computes scores after the decoder generates a hidden state, using simpler dot-product variants:<br><code>e_ij = sᵢᵀ hⱼ</code> (dot) or <code>e_ij = sᵢᵀ W hⱼ</code> (general). No extra parameters for the dot variant, and the general variant uses a single learned matrix.</p>
+        <ul>
+          <li><strong>Placement:</strong> Bahdanau uses s_{i-1} (before decoding); Luong uses sᵢ (after)</li>
+          <li><strong>Complexity:</strong> Bahdanau has a 2-layer score network; Luong is a single operation</li>
+          <li><strong>Speed:</strong> Luong is faster at inference — dot products parallelize over the full sequence easily</li>
+          <li><strong>Variants:</strong> Luong adds global vs. local attention (attending to a window instead of all positions)</li>
+        </ul>
+        <p>In practice, performance is similar. Luong's simplicity made it the dominant form in later work, and both were superseded by the self-attention in Transformers.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">03</span>
+        <div class="q-body">
+          <span class="q-text">How do attention weights relate to model interpretability? What are the limits of this view?</span>
+          <div class="q-chips">
+            <span class="chip nlp">NLP</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>The attention weight matrix [αᵢⱼ] shows which source positions the model attended to when generating each output token. For machine translation, a mostly-diagonal matrix suggests the model learned roughly monotonic alignment — a good sanity check. This made attention one of the first widely-used neural interpretability tools.</p>
+        <p>However, <strong>attention weights ≠ explanation</strong>. Several papers (notably Jain &amp; Wallace 2019, Wiegreffe &amp; Pinter 2019) showed:</p>
+        <ul>
+          <li>Different attention patterns can produce identical outputs — attention is not unique</li>
+          <li>High attention on a token doesn't mean the model's prediction is "caused by" that token</li>
+          <li>Models can distribute attention uniformly and still make correct predictions</li>
+          <li>Adversarial attention distributions can be constructed that don't change the output</li>
+        </ul>
+        <p>Better attribution methods (gradient-based: Integrated Gradients, SHAP) are generally more faithful. Attention is useful as a diagnostic and for visualization, but should not be treated as ground-truth feature importance.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Architecture -->
+  <div class="questions-group all-group" data-group="arch">
+    <div class="group-label">Architecture</div>
+
+    <details>
+      <summary>
+        <span class="q-number">04</span>
+        <div class="q-body">
+          <span class="q-text">Why does the Transformer use positional encodings instead of relying on recurrence for sequence order?</span>
+          <div class="q-chips">
+            <span class="chip arch">Architecture</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>Self-attention processes all tokens <strong>simultaneously</strong> — it has no inherent notion of order. Without positional information, "the cat sat on the mat" and any permutation of those words would produce identical representations.</p>
+        <p>The original Transformer (Vaswani et al., 2017) adds sinusoidal positional encodings to the token embeddings:<br><code>PE(pos, 2i) = sin(pos / 10000^{2i/d})</code><br><code>PE(pos, 2i+1) = cos(pos / 10000^{2i/d})</code></p>
+        <ul>
+          <li><strong>Fixed:</strong> no learned parameters; generalizes to sequence lengths not seen during training</li>
+          <li><strong>Relative distances:</strong> the dot product between two sinusoidal encodings is a function of their distance, giving the model a signal about how far apart two positions are</li>
+          <li><strong>Alternative — learned:</strong> BERT and GPT use learned position embeddings, which often outperform sinusoidal on fixed-length tasks but don't extrapolate</li>
+          <li><strong>Modern — RoPE/ALiBi:</strong> rotary position embeddings and attention biases encode relative position directly in the attention score, extending context efficiently</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">05</span>
+        <div class="q-body">
+          <span class="q-text">What is multi-head attention and why use multiple heads instead of one large attention operation?</span>
+          <div class="q-chips">
+            <span class="chip arch">Architecture</span>
+            <span class="chip hard">Hard</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>Multi-head attention runs h parallel attention functions on learned projections of Q, K, V, then concatenates and projects the results:<br><code>MultiHead(Q,K,V) = Concat(head₁, …, headₕ) Wᴼ</code><br>where <code>headᵢ = Attention(Q Wᵢᴼ, K Wᵢᴷ, V Wᵢᵛ)</code></p>
+        <p><strong>Why multiple heads?</strong></p>
+        <ul>
+          <li><strong>Specialization:</strong> each head can attend to different relationship types — one might capture syntactic dependencies, another semantic similarity, another coreference</li>
+          <li><strong>Avoiding averaging:</strong> a single attention head takes a weighted average of values; multiple heads in different subspaces can represent richer structure without collapsing to a single blur</li>
+          <li><strong>Representational capacity:</strong> projecting to lower-dimensional subspaces (d/h per head) before attending is computationally cheaper than one full-dimension attention and often performs better</li>
+        </ul>
+        <p>Empirically, analysis (Clark et al., 2019) shows different heads do specialize — some track subject-verb agreement, others attend to adjacent tokens or sentence-initial tokens. Pruning many heads has little effect, suggesting redundancy, but a diverse set matters.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">06</span>
+        <div class="q-body">
+          <span class="q-text">When would you choose an encoder-only vs. decoder-only vs. encoder-decoder architecture?</span>
+          <div class="q-chips">
+            <span class="chip arch">Architecture</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p><strong>Encoder-only (BERT-style):</strong> bidirectional — each token attends to all other tokens. Best for tasks where you need to understand the full input before producing an answer: classification, NER, QA (extractive), sentence embeddings. Doesn't generate text natively.</p>
+        <p><strong>Decoder-only (GPT-style):</strong> autoregressive — each token only attends to past tokens (causal mask). Best for text generation, language modeling, few-shot prompting. The dominant architecture for large language models because scaling laws favor unified generation-centric training.</p>
+        <p><strong>Encoder-decoder (T5/BART-style):</strong> encoder reads input bidirectionally; decoder generates output with cross-attention to encoder states. Best for conditional generation tasks where input and output differ structurally: machine translation, summarization, question generation.</p>
+        <ul>
+          <li>NLU tasks (sentiment, classification) → encoder-only</li>
+          <li>Open-ended generation, chat, instruction-following → decoder-only</li>
+          <li>Translation, summarization, structured prediction → encoder-decoder</li>
+        </ul>
+        <p>In practice, large decoder-only models (GPT-4, Claude) handle all three via prompting, making the distinction blurry at scale.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Training -->
+  <div class="questions-group all-group" data-group="train">
+    <div class="group-label">Training</div>
+
+    <details>
+      <summary>
+        <span class="q-number">07</span>
+        <div class="q-body">
+          <span class="q-text">Explain the vanishing gradient problem and how LSTMs address it.</span>
+          <div class="q-chips">
+            <span class="chip train">Training</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>In deep or long recurrent networks, gradients are backpropagated through time by repeated multiplication of Jacobian matrices. If those matrices have eigenvalues &lt; 1, the product shrinks exponentially — <strong>gradients vanish</strong> before reaching early time steps, making it impossible to learn long-range dependencies.</p>
+        <p>The <strong>LSTM</strong> addresses this through its cell state c_t, which flows through time with <em>additive</em> updates rather than multiplicative ones. Three gates control information flow:</p>
+        <ul>
+          <li><strong>Forget gate f_t:</strong> what fraction of the previous cell state to keep: <code>f_t = σ(W_f [h_{t-1}, x_t])</code></li>
+          <li><strong>Input gate i_t:</strong> what new information to write to the cell</li>
+          <li><strong>Output gate o_t:</strong> what to expose as the hidden state h_t</li>
+        </ul>
+        <p>The key insight: when the forget gate is near 1, gradients can flow back through <code>c_t = f_t ⊙ c_{t-1} + i_t ⊙ g_t</code> almost unattenuated, because the gradient of c_t w.r.t. c_{t-1} approaches 1 (not the product of sigmoid derivatives). The cell state is a "gradient highway."</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">08</span>
+        <div class="q-body">
+          <span class="q-text">What is teacher forcing and what are its tradeoffs?</span>
+          <div class="q-chips">
+            <span class="chip train">Training</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>Teacher forcing feeds the <strong>ground truth token</strong> as input to the decoder at each step during training, rather than the model's own prediction from the previous step.</p>
+        <p><strong>Pros:</strong></p>
+        <ul>
+          <li>Faster convergence — the decoder always sees correct inputs, so gradients are more stable</li>
+          <li>Avoids compounding errors during training (wrong predictions cascading into worse ones)</li>
+        </ul>
+        <p><strong>Cons — Exposure Bias:</strong> at inference time, the model must condition on its own (potentially wrong) outputs. It was never trained on this distribution, so small errors at early steps compound and the model can spiral into incoherent outputs.</p>
+        <p><strong>Mitigations:</strong></p>
+        <ul>
+          <li><strong>Scheduled sampling</strong> (Bengio et al., 2015): start with 100% teacher forcing; gradually decrease the probability during training so the model sees its own outputs increasingly often</li>
+          <li><strong>Reinforcement learning fine-tuning:</strong> train with a sequence-level reward instead of token-level cross-entropy</li>
+          <li><strong>Prof-forcing / contrastive objectives:</strong> match the joint distribution of teacher-forced and free-running outputs</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">09</span>
+        <div class="q-body">
+          <span class="q-text">Explain the difference between batch normalization and layer normalization. Why does the Transformer use layer norm?</span>
+          <div class="q-chips">
+            <span class="chip train">Training</span>
+            <span class="chip arch">Architecture</span>
+            <span class="chip hard">Hard</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p><strong>Batch normalization</strong> normalizes each feature across the batch dimension: for feature j, compute mean and variance over all examples in the batch, then normalize. This stabilizes training by reducing internal covariate shift but creates a dependency on batch size and makes the stats unavailable for single-example inference.</p>
+        <p><strong>Layer normalization</strong> normalizes across the feature dimension for each individual example: compute mean and variance over all features for a single token's representation, then normalize. No batch dependency.</p>
+        <p><strong>Why LayerNorm for Transformers?</strong></p>
+        <ul>
+          <li>Sequence lengths vary — batches of sequences have different valid positions, making batch statistics unreliable for positions masked as padding</li>
+          <li>Autoregressive generation processes one token at a time (batch size = 1 at inference) — BatchNorm breaks in this regime</li>
+          <li>LayerNorm has no dependence on batch size and works identically at training and inference time</li>
+        </ul>
+        <p>Modern variants: <strong>Pre-LN</strong> (normalize before the attention/FFN sublayer, not after) stabilizes training at large scale and is used in GPT-3 and most large LLMs.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Evaluation -->
+  <div class="questions-group all-group" data-group="eval">
+    <div class="group-label">Evaluation</div>
+
+    <details>
+      <summary>
+        <span class="q-number">10</span>
+        <div class="q-body">
+          <span class="q-text">What is BLEU score and what are its main limitations?</span>
+          <div class="q-chips">
+            <span class="chip eval">Evaluation</span>
+            <span class="chip easy">Easy</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>BLEU (Bilingual Evaluation Understudy) measures n-gram precision between a hypothesis translation and one or more reference translations, with a <strong>brevity penalty</strong> to discourage excessively short outputs.<br><code>BLEU = BP · exp(Σ wₙ log pₙ)</code><br>where pₙ is clipped n-gram precision for n-grams of length 1–4.</p>
+        <p><strong>Strengths:</strong> cheap, language-agnostic, reproducible, correlates with human judgment at the corpus level (not sentence level).</p>
+        <p><strong>Limitations:</strong></p>
+        <ul>
+          <li>Measures surface overlap, not meaning — a synonym-based paraphrase can score 0 despite being correct</li>
+          <li>Poor correlation with human judgment at the sentence level</li>
+          <li>Sensitive to tokenization choices — scores are not comparable across toolkits without normalization</li>
+          <li>Reference-dependent — requires human-written references; one reference disadvantages divergent but correct translations</li>
+          <li>Doesn't penalize grammatical errors that happen to produce matching n-grams</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">11</span>
+        <div class="q-body">
+          <span class="q-text">How would you evaluate an MT model beyond BLEU?</span>
+          <div class="q-chips">
+            <span class="chip eval">Evaluation</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>A multi-level evaluation suite for machine translation:</p>
+        <ul>
+          <li><strong>chrF:</strong> character n-gram F-score — more robust to morphological variation, less sensitive to tokenization</li>
+          <li><strong>TER (Translation Edit Rate):</strong> minimum edit distance (insert/delete/substitute/shift) to transform hypothesis to reference, normalized by reference length — penalizes reordering</li>
+          <li><strong>BERTScore:</strong> computes token-level cosine similarity between contextual embeddings of hypothesis and reference — captures semantic equivalence that n-gram metrics miss</li>
+          <li><strong>COMET:</strong> a learned metric trained on human judgments (direct assessment scores); state-of-the-art correlation with human evaluation at segment level</li>
+          <li><strong>Human evaluation:</strong> adequacy (does it convey the same meaning?) + fluency (is it natural-sounding?) — the gold standard but expensive</li>
+        </ul>
+        <p>For attention-specific evaluation: <strong>alignment error rate (AER)</strong> compares model attention weights against gold-standard word alignments. A good attention model should produce low AER on language pairs with known alignment data.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>
+        <span class="q-number">12</span>
+        <div class="q-body">
+          <span class="q-text">What is perplexity and when is it a good (or bad) evaluation metric for language models?</span>
+          <div class="q-chips">
+            <span class="chip eval">Evaluation</span>
+            <span class="chip medium">Medium</span>
+          </div>
+        </div>
+        <span class="q-toggle">›</span>
+      </summary>
+      <div class="answer">
+        <p>Perplexity is the exponentiated average negative log-likelihood of a test corpus under the model:<br><code>PPL = exp(−(1/N) Σ log P(xᵢ | x₁,…,xᵢ₋₁))</code><br>Intuitively, it measures how "surprised" the model is by the test data. Lower is better — a perplexity of 10 means the model is effectively choosing uniformly among 10 options at each step.</p>
+        <p><strong>Good for:</strong></p>
+        <ul>
+          <li>Comparing models trained on the same data with the same tokenizer</li>
+          <li>Tracking training progress — perplexity reliably decreases as the model improves</li>
+          <li>Evaluating language model quality on in-distribution text</li>
+        </ul>
+        <p><strong>Bad for:</strong></p>
+        <ul>
+          <li><strong>Cross-model comparison</strong> — perplexity depends on tokenization; a model with byte-pair encoding vs. character-level tokenization gives incomparable numbers</li>
+          <li><strong>Downstream tasks</strong> — lower perplexity doesn't guarantee better task performance; a model can memorize surface statistics without understanding</li>
+          <li><strong>Out-of-distribution evaluation</strong> — perplexity inflates dramatically on domains not seen during training, masking generalization quality</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<footer>
+  <div>ML Prep · April 2026</div>
+  <nav>
+    <a href="../">Home</a>
+    <a href="../courses/">Courses</a>
+    <a href="../glossary/">Glossary</a>
+  </nav>
+</footer>
+
+<script>
+const tabs = document.querySelectorAll('.filter-tab');
+const groups = document.querySelectorAll('.questions-group');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+
+    if (filter === 'all') {
+      groups.forEach(g => g.classList.add('all-group'));
+    } else {
+      groups.forEach(g => {
+        g.classList.remove('all-group');
+        g.style.display = g.dataset.group === filter ? 'block' : 'none';
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

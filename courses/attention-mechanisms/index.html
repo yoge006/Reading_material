@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attention Mechanisms — ML Prep</title>
+<meta name="description" content="Lesson 01: Bahdanau Attention. Learn how soft alignment replaces the seq2seq bottleneck with a dynamic context vector.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;
+  --accent-2: #ff6b4a;
+  --blue: #7aa7d9;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+/* ===== MASTHEAD ===== */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  height: 52px;
+}
+.masthead .brand {
+  color: var(--ink);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; align-items: stretch; }
+.masthead nav a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--rule);
+  font-size: 0.72rem;
+}
+.masthead nav a:hover { color: var(--accent); }
+.masthead nav a.active { color: var(--ink); }
+.nav-cta {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-left: 1px solid var(--rule);
+  background: var(--accent);
+  color: #0e0e10 !important;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ===== TWO-COLUMN LAYOUT ===== */
+.course-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 52px);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  border-right: 1px solid var(--rule);
+  position: sticky;
+  top: 52px;
+  height: calc(100vh - 52px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-course {
+  padding: 1.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+.sidebar-back {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s;
+}
+.sidebar-back:hover { color: var(--accent); }
+.sidebar-track {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.sidebar-title {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.sidebar-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.sidebar-meta-row { display: flex; justify-content: space-between; }
+.sidebar-meta-val { color: var(--ink-dim); }
+
+/* Progress bar */
+.progress-wrap {
+  padding: 1rem 1.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+.progress-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar {
+  height: 2px;
+  background: var(--rule);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 25%;
+}
+
+/* Lesson list */
+.lesson-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+.lesson-nav-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.lesson-item {
+  padding: 0.85rem 1.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  border-left: 2px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+  color: inherit;
+  cursor: default;
+}
+a.lesson-item { cursor: pointer; }
+a.lesson-item:hover { background: var(--bg-elev); }
+.lesson-item.active {
+  background: rgba(232, 197, 71, 0.05);
+  border-left-color: var(--accent);
+}
+.lesson-item.done { opacity: 0.6; }
+.lesson-item.locked { opacity: 0.3; }
+
+.lesson-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-family: var(--mono);
+}
+.lesson-icon.done { background: var(--green); border-color: var(--green); color: var(--bg); }
+.lesson-icon.active { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; }
+.lesson-icon.locked { background: transparent; }
+
+.lesson-info { flex: 1; }
+.lesson-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.2rem;
+}
+.lesson-item.active .lesson-num { color: var(--accent); }
+.lesson-name {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+.lesson-item.active .lesson-name { color: var(--ink); }
+.lesson-status {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.2rem;
+}
+.lesson-status.pub { color: var(--green); }
+.lesson-status.cur { color: var(--accent); }
+
+/* ===== MAIN CONTENT ===== */
+.course-main {
+  padding: 3rem 4rem 5rem;
+  max-width: 760px;
+}
+
+/* Lesson header */
+.lesson-breadcrumb {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.lesson-breadcrumb span { color: var(--rule); }
+
+.lesson-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+h1.lesson-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+h1.lesson-title em { font-style: italic; color: var(--accent); }
+
+.lesson-subtitle {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 2rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 2.5rem;
+}
+.lesson-meta-item strong { color: var(--ink-dim); display: block; margin-bottom: 0.2rem; font-weight: 500; }
+
+/* Content sections */
+.lesson-intro {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.2rem;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  margin-bottom: 2.5rem;
+  max-width: 60ch;
+}
+
+h2.content-h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.65rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  margin-top: 3rem;
+}
+h2.content-h2 em { font-style: italic; color: var(--accent); }
+
+.content-p {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  margin-bottom: 1.25rem;
+  max-width: 65ch;
+}
+
+/* Concept cards grid */
+.concepts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+.concept-card {
+  background: var(--bg-elev);
+  padding: 1.75rem;
+}
+.concept-num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.concept-name {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 0.6rem;
+  line-height: 1.2;
+}
+.concept-desc {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
+/* Code block */
+.code-block {
+  background: #0a0a0c;
+  border: 1px solid var(--rule);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+.code-block-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+pre {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--ink-dim);
+  white-space: pre;
+}
+.kw  { color: var(--blue); }
+.fn  { color: var(--accent); }
+.cm  { color: var(--ink-faint); font-style: italic; }
+.st  { color: var(--green); }
+.nm  { color: var(--accent-2); }
+
+/* Objectives list */
+.objectives {
+  border: 1px solid var(--rule);
+  padding: 1.75rem;
+  margin: 2rem 0;
+  background: var(--bg-elev);
+}
+.objectives-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.objectives ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.objectives li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+.objectives li::before {
+  content: '→';
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  font-family: var(--mono);
+}
+
+/* CTA to full essay */
+.essay-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(232, 197, 71, 0.05);
+  border: 1px solid rgba(232, 197, 71, 0.2);
+  padding: 1.5rem 2rem;
+  margin-top: 3rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.essay-cta:hover { background: rgba(232, 197, 71, 0.09); border-color: rgba(232, 197, 71, 0.4); }
+.essay-cta-text {}
+.essay-cta-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.essay-cta-title {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--ink);
+}
+.essay-cta-arrow {
+  font-size: 1.5rem;
+  color: var(--accent);
+  transition: transform 0.2s;
+}
+.essay-cta:hover .essay-cta-arrow { transform: translateX(5px); }
+
+/* Next lesson preview */
+.next-lesson {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.next-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+.next-title {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+.next-badge {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--rule);
+  padding: 0.3rem 0.65rem;
+  white-space: nowrap;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+footer nav { display: flex; gap: 1.5rem; }
+footer a { color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--ink-dim); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .course-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--rule); }
+  .course-main { padding: 2rem 1.5rem 4rem; }
+  .concepts-grid { grid-template-columns: 1fr; }
+  .masthead nav { display: none; }
+  footer { flex-direction: column; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <a href="../../" class="brand">ML <span>Prep</span></a>
+  <nav>
+    <a href="../" class="active">Courses</a>
+    <a href="../../practice/">Practice</a>
+    <a href="../../glossary/">Glossary</a>
+  </nav>
+  <a href="../../bahdanau-site/" class="nav-cta">Read Essay →</a>
+</header>
+
+<div class="course-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-course">
+      <a href="../" class="sidebar-back">← All Courses</a>
+      <div class="sidebar-track">NLP · Architecture</div>
+      <div class="sidebar-title">Attention Mechanisms</div>
+      <div class="sidebar-meta">
+        <div class="sidebar-meta-row">
+          <span>Level</span>
+          <span class="sidebar-meta-val">Intermediate</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span>Lessons</span>
+          <span class="sidebar-meta-val">4 total</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span>Paper</span>
+          <span class="sidebar-meta-val">Bahdanau et al., 2014</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Progress</span>
+        <span>1 / 4</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <nav class="lesson-nav">
+      <div class="lesson-nav-label">Lessons</div>
+
+      <div class="lesson-item done">
+        <div class="lesson-icon done">✓</div>
+        <div class="lesson-info">
+          <div class="lesson-num">00 — Prerequisite</div>
+          <div class="lesson-name">Seq2Seq &amp; the Encoder–Decoder Architecture</div>
+          <div class="lesson-status pub">Background</div>
+        </div>
+      </div>
+
+      <div class="lesson-item active">
+        <div class="lesson-icon active">→</div>
+        <div class="lesson-info">
+          <div class="lesson-num">01 — Current</div>
+          <div class="lesson-name">Bahdanau Attention — The Alignment Matrix</div>
+          <div class="lesson-status cur">Reading Now</div>
+        </div>
+      </div>
+
+      <div class="lesson-item locked">
+        <div class="lesson-icon locked"></div>
+        <div class="lesson-info">
+          <div class="lesson-num">02 — Next</div>
+          <div class="lesson-name">Luong Attention — Multiplicative Scoring</div>
+          <div class="lesson-status">Coming Soon</div>
+        </div>
+      </div>
+
+      <div class="lesson-item locked">
+        <div class="lesson-icon locked"></div>
+        <div class="lesson-info">
+          <div class="lesson-num">03 — Future</div>
+          <div class="lesson-name">Attention Is All You Need</div>
+          <div class="lesson-status">Coming Soon</div>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="course-main">
+
+    <div class="lesson-breadcrumb">
+      <a href="../../" style="color:var(--ink-faint); text-decoration:none;">Home</a>
+      <span>/</span>
+      <a href="../" style="color:var(--ink-faint); text-decoration:none;">Courses</a>
+      <span>/</span>
+      <span style="color:var(--ink-dim);">Attention Mechanisms</span>
+    </div>
+
+    <div class="lesson-eyebrow">Lesson 01 — NLP · Attention</div>
+    <h1 class="lesson-title">Bahdanau <em>Attention</em></h1>
+    <div class="lesson-subtitle">The Alignment Matrix · Bahdanau et al., 2014</div>
+
+    <div class="lesson-meta">
+      <div class="lesson-meta-item">
+        <strong>Read time</strong>
+        ~4 min lesson
+      </div>
+      <div class="lesson-meta-item">
+        <strong>Format</strong>
+        Visual Essay
+      </div>
+      <div class="lesson-meta-item">
+        <strong>Paper</strong>
+        ICLR 2015
+      </div>
+    </div>
+
+    <p class="lesson-intro">Standard seq2seq models compress an entire input sequence into a single fixed-length vector — a bottleneck that loses information for long sentences. Bahdanau attention replaces this with a dynamic context vector recomputed at each decoder step.</p>
+
+    <div class="objectives">
+      <div class="objectives-title">What you'll learn</div>
+      <ul>
+        <li>Why the fixed-length encoder vector fails on long sequences</li>
+        <li>How alignment scores are computed using a feed-forward network</li>
+        <li>How softmax turns scores into attention weights αᵢⱼ</li>
+        <li>How the context vector cᵢ is assembled as a weighted sum of encoder states</li>
+        <li>How to read the attention alignment matrix as a diagnostic tool</li>
+      </ul>
+    </div>
+
+    <h2 class="content-h2">Four <em>key concepts</em>.</h2>
+
+    <div class="concepts-grid">
+      <div class="concept-card">
+        <div class="concept-num">01 — Problem</div>
+        <div class="concept-name">The Bottleneck</div>
+        <p class="concept-desc">A vanilla seq2seq encoder compresses the full input into one vector c. For long sequences, early tokens are forgotten — the decoder has no direct path back to them.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">02 — Score Function</div>
+        <div class="concept-name">Alignment Scores</div>
+        <p class="concept-desc">For each decoder step i and encoder state j, compute a score:<br><br><code style="font-family:var(--mono); font-size:0.78rem; color:var(--accent)">e_ij = vᵀ tanh(W₁s_{i-1} + W₂h_j)</code><br><br>A small feed-forward network that asks: "how well does source position j match decoder state i?"</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">03 — Weights</div>
+        <div class="concept-name">Attention Weights αᵢⱼ</div>
+        <p class="concept-desc">Pass the scores through softmax to get a probability distribution over source positions. These are the attention weights — they sum to 1 for each decoder step.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">04 — Context</div>
+        <div class="concept-name">Context Vector cᵢ</div>
+        <p class="concept-desc">The context vector is a weighted sum of all encoder hidden states:<br><br><code style="font-family:var(--mono); font-size:0.78rem; color:var(--accent)">c_i = Σⱼ α_ij · h_j</code><br><br>A fresh, query-specific summary recomputed at each decoder step.</p>
+      </div>
+    </div>
+
+    <h2 class="content-h2">The alignment <em>matrix</em>.</h2>
+    <p class="content-p">Stacking all attention weight vectors [α₁, α₂, …, αₘ] across decoder steps produces an alignment matrix — a grid showing which source tokens the model focused on for each output token.</p>
+    <p class="content-p">For a well-trained translation model, this matrix should approximate a diagonal pattern: the first output word should attend to the first input word, the second to the second, and so on — with soft deviations for syntactic reordering.</p>
+
+    <h2 class="content-h2">PyTorch <em>sketch</em>.</h2>
+    <div class="code-block">
+      <div class="code-block-label">attention.py — Score function + context vector</div>
+<pre><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">class</span> <span class="fn">BahdanauAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, hidden_dim):
+        <span class="fn">super</span>().__init__()
+        self.W1 = nn.<span class="fn">Linear</span>(hidden_dim, hidden_dim)  <span class="cm"># decoder state</span>
+        self.W2 = nn.<span class="fn">Linear</span>(hidden_dim, hidden_dim)  <span class="cm"># encoder states</span>
+        self.v  = nn.<span class="fn">Linear</span>(hidden_dim, <span class="nm">1</span>)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, s_prev, h):
+        <span class="cm"># s_prev: (batch, hidden_dim)</span>
+        <span class="cm"># h:      (batch, src_len, hidden_dim)</span>
+        s = self.W1(s_prev).unsqueeze(<span class="nm">1</span>)  <span class="cm"># (batch, 1, H)</span>
+        e = self.v(torch.<span class="fn">tanh</span>(s + self.W2(h)))  <span class="cm"># (batch, src_len, 1)</span>
+        alpha = F.<span class="fn">softmax</span>(e.squeeze(-<span class="nm">1</span>), dim=-<span class="nm">1</span>)  <span class="cm"># (batch, src_len)</span>
+        context = (alpha.unsqueeze(-<span class="nm">1</span>) * h).<span class="fn">sum</span>(dim=<span class="nm">1</span>)  <span class="cm"># (batch, H)</span>
+        <span class="kw">return</span> context, alpha</pre>
+    </div>
+
+    <a href="../../bahdanau-site/" class="essay-cta">
+      <div class="essay-cta-text">
+        <div class="essay-cta-label">Full Visual Essay</div>
+        <div class="essay-cta-title">Bahdanau Attention — The Alignment Matrix</div>
+      </div>
+      <div class="essay-cta-arrow">→</div>
+    </a>
+
+    <div class="next-lesson">
+      <div>
+        <div class="next-label">Next Lesson</div>
+        <div class="next-title">Luong Attention — Multiplicative Scoring</div>
+      </div>
+      <div class="next-badge">Coming Soon</div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div>ML Prep · Attention Mechanisms Track</div>
+  <nav>
+    <a href="../../">Home</a>
+    <a href="../">Courses</a>
+    <a href="../../practice/">Practice</a>
+    <a href="../../glossary/">Glossary</a>
+  </nav>
+</footer>
+
+</body>
+</html>

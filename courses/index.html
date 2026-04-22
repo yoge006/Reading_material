@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Courses — ML Prep</title>
+<meta name="description" content="Structured ML learning tracks — visual essays, reading paths, and reference material for ML engineers preparing for interviews.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;
+  --accent-2: #ff6b4a;
+  --blue: #7aa7d9;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+/* ===== MASTHEAD ===== */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  height: 52px;
+}
+.masthead .brand {
+  color: var(--ink);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; align-items: stretch; }
+.masthead nav a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--rule);
+  font-size: 0.72rem;
+}
+.masthead nav a:hover { color: var(--accent); }
+.masthead nav a.active { color: var(--ink); }
+.nav-cta {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-left: 1px solid var(--rule);
+  background: var(--accent);
+  color: #0e0e10 !important;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  padding: 4rem 2rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--rule);
+}
+.breadcrumb {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.breadcrumb a { color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb span { color: var(--rule); }
+
+h1.page-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+h1.page-title em { font-style: italic; color: var(--accent); }
+
+.page-sub {
+  color: var(--ink-dim);
+  font-size: 1rem;
+  max-width: 56ch;
+  line-height: 1.65;
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  overflow-x: auto;
+}
+.filter-tab {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 1rem 1.4rem;
+  cursor: pointer;
+  color: var(--ink-faint);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.filter-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.filter-tab:hover:not(.active) { color: var(--ink-dim); }
+
+/* ===== COURSES GRID ===== */
+.courses-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+}
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.course-card-wrapper { display: contents; }
+
+.course-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.25s, border-color 0.25s;
+  text-decoration: none;
+  color: inherit;
+}
+.course-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.course-card.dim { opacity: 0.45; pointer-events: none; }
+
+.course-card-top {
+  padding: 1.75rem 1.75rem 1.5rem;
+  flex: 1;
+}
+.course-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.course-tag.ref { color: var(--green); }
+.course-tag.dim { color: var(--ink-faint); }
+
+.course-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.1;
+  margin-bottom: 0.65rem;
+}
+.course-desc {
+  color: var(--ink-dim);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* Lesson list inside card */
+.course-lessons {
+  list-style: none;
+  border-top: 1px solid var(--rule);
+  padding-top: 1rem;
+}
+.course-lessons li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  font-size: 0.82rem;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+}
+.lesson-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--rule);
+}
+.lesson-dot.done { background: var(--green); }
+.lesson-dot.active { background: var(--accent); }
+
+.course-card-footer {
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.footer-meta { display: flex; gap: 1rem; color: var(--ink-faint); }
+
+.pill {
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  font-size: 0.62rem;
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+}
+.pill-yellow { background: rgba(232,197,71,0.08); color: var(--accent); border-color: rgba(232,197,71,0.2); }
+.pill-green  { background: rgba(143,185,150,0.08); color: var(--green); border-color: rgba(143,185,150,0.2); }
+
+.card-arrow {
+  color: var(--accent);
+  font-size: 1rem;
+  transition: transform 0.2s;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.course-card:hover .card-arrow { transform: translateX(4px); }
+
+/* Coming-soon badge */
+.badge-coming {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--rule);
+  padding: 0.2rem 0.5rem;
+}
+.badge-new {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(232,197,71,0.3);
+  padding: 0.2rem 0.5rem;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+footer nav { display: flex; gap: 1.5rem; }
+footer a { color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--ink-dim); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 960px) {
+  .courses-grid { grid-template-columns: repeat(2, 1fr); }
+  .masthead nav { display: none; }
+}
+@media (max-width: 640px) {
+  .courses-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <a href="../" class="brand">ML <span>Prep</span></a>
+  <nav>
+    <a href="./" class="active">Courses</a>
+    <a href="../practice/">Practice</a>
+    <a href="../glossary/">Glossary</a>
+  </nav>
+  <a href="attention-mechanisms/" class="nav-cta">Start Learning →</a>
+</header>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="../">Home</a>
+    <span>/</span>
+    <span style="color: var(--ink-dim);">Courses</span>
+  </div>
+  <h1 class="page-title">Learning <em>tracks</em>.</h1>
+  <p class="page-sub">Structured paths through ML research — from foundational papers to modern architectures. Pick a track and work through it lesson by lesson.</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-tab active" data-filter="all">All</button>
+  <button class="filter-tab" data-filter="nlp">NLP</button>
+  <button class="filter-tab" data-filter="reference">Reference</button>
+  <button class="filter-tab" data-filter="coming">Coming Soon</button>
+</div>
+
+<div class="courses-container">
+  <div class="courses-grid">
+
+    <!-- Course 1: Attention Mechanisms -->
+    <div class="course-card-wrapper" data-category="nlp">
+      <a href="attention-mechanisms/" class="course-card">
+        <div class="badge-new">Active</div>
+        <div class="course-card-top">
+          <div class="course-tag">NLP · Architecture</div>
+          <div class="course-title">Attention Mechanisms</div>
+          <p class="course-desc">From the seq2seq bottleneck to multi-head self-attention — a visual path through the papers that changed NLP.</p>
+          <ul class="course-lessons">
+            <li><span class="lesson-dot done"></span>Seq2Seq &amp; the Encoder–Decoder Architecture</li>
+            <li><span class="lesson-dot active"></span>Bahdanau Attention — The Alignment Matrix</li>
+            <li><span class="lesson-dot"></span>Luong Attention — Multiplicative Scoring</li>
+            <li><span class="lesson-dot"></span>Attention Is All You Need</li>
+          </ul>
+        </div>
+        <div class="course-card-footer">
+          <div class="footer-meta">
+            <span class="pill pill-yellow">4 Lessons</span>
+            <span class="pill pill-yellow">Intermediate</span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Course 2: ML Glossary -->
+    <div class="course-card-wrapper" data-category="reference">
+      <a href="../glossary/" class="course-card">
+        <div class="badge-new">Active</div>
+        <div class="course-card-top">
+          <div class="course-tag ref">Reference · Interview Prep</div>
+          <div class="course-title">ML Interviews Glossary</div>
+          <p class="course-desc">93 terms across data handling, model selection, evaluation metrics, and production ML. Your reference sheet for every ML interview.</p>
+          <ul class="course-lessons">
+            <li><span class="lesson-dot done"></span>Data Handling &amp; Preprocessing</li>
+            <li><span class="lesson-dot done"></span>Model Selection &amp; Optimization</li>
+            <li><span class="lesson-dot done"></span>Evaluation Metrics</li>
+            <li><span class="lesson-dot done"></span>ML in Production</li>
+          </ul>
+        </div>
+        <div class="course-card-footer">
+          <div class="footer-meta">
+            <span class="pill pill-green">Reference</span>
+            <span class="pill pill-green">All Levels</span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Course 3: Transformers (coming soon) -->
+    <div class="course-card-wrapper" data-category="coming">
+      <div class="course-card dim">
+        <div class="badge-coming">Coming Soon</div>
+        <div class="course-card-top">
+          <div class="course-tag dim">Architecture · Deep Learning</div>
+          <div class="course-title">The Transformer Architecture</div>
+          <p class="course-desc">Multi-head self-attention, positional encodings, layer normalization, and why dispensing with recurrence led to a new paradigm.</p>
+          <ul class="course-lessons">
+            <li><span class="lesson-dot"></span>Self-Attention &amp; the Query–Key–Value Framework</li>
+            <li><span class="lesson-dot"></span>Multi-Head Attention</li>
+            <li><span class="lesson-dot"></span>Positional Encodings</li>
+            <li><span class="lesson-dot"></span>The Full Transformer Block</li>
+            <li><span class="lesson-dot"></span>BERT vs. GPT — Encoder vs. Decoder</li>
+          </ul>
+        </div>
+        <div class="course-card-footer">
+          <div class="footer-meta">
+            <span class="pill">5 Lessons</span>
+            <span class="pill">Advanced</span>
+          </div>
+          <span class="card-arrow" style="color: var(--ink-faint);">→</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div>ML Prep · April 2026</div>
+  <nav>
+    <a href="../">Home</a>
+    <a href="../practice/">Practice</a>
+    <a href="../glossary/">Glossary</a>
+  </nav>
+</footer>
+
+<script>
+const tabs = document.querySelectorAll('.filter-tab');
+const wrappers = document.querySelectorAll('.course-card-wrapper');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+    wrappers.forEach(w => {
+      w.style.display = (filter === 'all' || w.dataset.category === filter) ? '' : 'none';
+    });
+  });
+});
+</script>
+
+</body>
+</html>
