@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahdanau Attention — The Alignment Matrix</title>
+<meta name="description" content="A visual, technical walkthrough of how Bahdanau (additive) attention forms a soft alignment matrix between source and target sequences.">
+
+<!-- Fonts: Fraunces (display, editorial) + JetBrains Mono (technical) + Inter Tight (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;      /* warm ochre */
+  --accent-2: #ff6b4a;    /* terracotta */
+  --blue: #7aa7d9;
+  --red: #d97a7a;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Subtle grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+/* ===== HEADER ===== */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.masthead .brand { color: var(--ink); font-weight: 500; }
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; gap: 2rem; }
+.masthead nav a { color: var(--ink-dim); text-decoration: none; transition: color 0.2s; }
+.masthead nav a:hover { color: var(--accent); }
+
+/* ===== HERO ===== */
+.hero {
+  padding: 6rem 2rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: end;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: 120px;
+  height: 120px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+h1.title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+h1.title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.hero-meta {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  line-height: 1.8;
+}
+
+.hero-meta .label {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+}
+
+.hero-meta .row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-meta .row:last-child { border-bottom: none; }
+
+/* ===== SECTIONS ===== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+section {
+  padding: 5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.section-header {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  align-items: start;
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--accent);
+  width: fit-content;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h2 em { font-style: italic; color: var(--accent); }
+
+.lead {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 65ch;
+  margin-left: 180px;
+  padding-left: 3rem;
+  border-left: 1px solid var(--rule);
+}
+
+/* ===== PROSE ===== */
+.prose {
+  max-width: 65ch;
+  margin-left: 180px;
+  padding-left: 3rem;
+  font-size: 1.05rem;
+}
+
+.prose p { margin-bottom: 1.5rem; color: var(--ink); }
+.prose p.muted { color: var(--ink-dim); }
+
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--bg-elev);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+  border: 1px solid var(--rule);
+}
+
+.prose strong { font-weight: 500; color: var(--accent); }
+
+/* ===== EQUATION BLOCK ===== */
+.equation {
+  margin: 3rem 0 3rem 180px;
+  padding: 2.5rem 3rem;
+  background: linear-gradient(135deg, var(--bg-elev) 0%, #1c1c20 100%);
+  border-left: 3px solid var(--accent);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.6rem;
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+.equation::before {
+  content: 'EQ';
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+}
+
+.equation .caption {
+  display: block;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  margin-top: 1rem;
+  letter-spacing: 0.05em;
+}
+
+/* ===== DIAGRAM ===== */
+.diagram-wrapper {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: #fafaf7;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.diagram-wrapper svg { width: 100%; height: auto; display: block; }
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* ===== MATRIX TYPES GRID ===== */
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.matrix-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  padding: 2rem;
+  position: relative;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.matrix-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.matrix-card .num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+}
+
+.matrix-card h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.matrix-card .shape {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.matrix-card p { color: var(--ink-dim); font-size: 0.95rem; line-height: 1.5; }
+
+/* ===== CODE BLOCK ===== */
+.code-block {
+  margin: 2rem 0 2rem 180px;
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+pre {
+  padding: 1.5rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+pre .kw { color: var(--accent); }
+pre .var { color: var(--blue); }
+pre .com { color: var(--ink-faint); font-style: italic; }
+pre .num { color: var(--green); }
+
+/* ===== FOOTER ===== */
+footer {
+  margin-top: 4rem;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+footer a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--rule); }
+footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero > * { animation: fadeUp 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero > *:nth-child(2) { animation-delay: 0.15s; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 4rem 1.5rem 3rem; gap: 2rem; }
+  .hero::after { display: none; }
+  .section-header { grid-template-columns: 1fr; gap: 1rem; }
+  .lead, .prose, .equation, .code-block { margin-left: 0; padding-left: 0; border-left: none; }
+  .equation { padding: 1.5rem; font-size: 1.2rem; }
+  .matrix-grid { grid-template-columns: 1fr; }
+  .masthead { padding: 1rem; }
+  .masthead nav { gap: 1rem; }
+  .container { padding: 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand">Notes on <span>Attention</span></div>
+  <nav>
+    <a href="../" style="color: var(--ink-faint); margin-right: 0.5rem;">← Library</a>
+    <a href="#intuition">Intuition</a>
+    <a href="#formula">Formula</a>
+    <a href="#diagram">Diagram</a>
+    <a href="#types">Matrix Types</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="eyebrow">A Visual Essay · 2026</div>
+    <h1 class="title">The <em>alignment</em><br>matrix, softly<br>learned.</h1>
+  </div>
+  <div class="hero-meta">
+    <div class="row"><span class="label">Topic</span><span>Bahdanau (Additive) Attention</span></div>
+    <div class="row"><span class="label">Origin</span><span>Bahdanau et al., 2014</span></div>
+    <div class="row"><span class="label">Shape</span><span>T_decoder × T_encoder</span></div>
+    <div class="row"><span class="label">Type</span><span>Row-stochastic, dense</span></div>
+    <div class="row"><span class="label">Reading</span><span>~4 minutes</span></div>
+  </div>
+</div>
+
+<!-- INTUITION -->
+<section id="intuition">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 01 — Premise</div>
+      <h2>What kind of matrix does it <em>form</em>?</h2>
+    </div>
+    <p class="lead">Bahdanau attention produces a <em>soft alignment matrix</em> — a continuous, row-stochastic relaxation of the discrete alignment used in classical statistical machine translation.</p>
+    <div class="prose" style="margin-top: 3rem;">
+      <p>When a decoder generates output at time <code>t</code>, it doesn't read the source sequence uniformly. Instead, it produces a distribution over encoder positions describing where to <em>look</em>. Stack these distributions row-by-row, one per decoder step, and you get the attention matrix.</p>
+      <p class="muted">Each row is a probability distribution. Each column represents a source token. The cell at <code>(t, i)</code> tells you how much the decoder attended to source position <code>i</code> while producing target token <code>t</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORMULA -->
+<section id="formula">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 02 — Formulation</div>
+      <h2>The additive <em>score</em> function.</h2>
+    </div>
+    <p class="lead">Unlike dot-product attention, Bahdanau uses a small feed-forward network — a single hidden layer with a <code>tanh</code> nonlinearity — to compare encoder and decoder states.</p>
+
+    <div class="equation">
+      e(t, i) = v<sup>⊤</sup> · tanh( W₁ · h<sub>i</sub> + W₂ · s<sub>t−1</sub> )
+      <span class="caption">→ Raw alignment score between decoder state s_{t-1} and encoder state h_i</span>
+    </div>
+
+    <div class="prose">
+      <p>Where <code>W₁</code> and <code>W₂</code> are learnable projection matrices and <code>v</code> is a learnable vector that collapses the hidden representation into a scalar score. These scores are then normalized across encoder positions via softmax:</p>
+    </div>
+
+    <div class="equation">
+      α(t, i) = exp( e(t, i) ) / Σ<sub>j</sub> exp( e(t, j) )
+      <span class="caption">→ Row-wise softmax turns scores into a probability distribution</span>
+    </div>
+
+    <div class="equation">
+      c<sub>t</sub> = Σ<sub>i</sub> α(t, i) · h<sub>i</sub>
+      <span class="caption">→ Context vector: weighted sum of encoder states for decoder step t</span>
+    </div>
+  </div>
+</section>
+
+<!-- DIAGRAM -->
+<section id="diagram">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 03 — Visualization</div>
+      <h2>From states to <em>alignment</em>, step by step.</h2>
+    </div>
+    <p class="lead">A concrete example — translating <code>"I love deep learning"</code> into <code>"J'adore l'IA"</code> — showing how each matrix is assembled.</p>
+
+    <div class="diagram-wrapper">
+      <object data="bahdanau_attention.svg" type="image/svg+xml" aria-label="Bahdanau attention diagram">
+        <img src="bahdanau_attention.svg" alt="Bahdanau attention matrix formation diagram">
+      </object>
+    </div>
+    <div class="diagram-caption">Fig. 1 — Score matrix (e) → attention matrix (α) → context vector (c)</div>
+  </div>
+</section>
+
+<!-- MATRIX TYPES -->
+<section id="types">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 04 — Taxonomy</div>
+      <h2>Three matrices, one <em>pipeline</em>.</h2>
+    </div>
+    <p class="lead">The attention mechanism manufactures several distinct matrices on its way to producing a context vector. Each has a different character.</p>
+
+    <div class="matrix-grid">
+      <div class="matrix-card">
+        <div class="num">01 / SCORE</div>
+        <h3>Score matrix</h3>
+        <div class="shape">e ∈ ℝ<sup>T_dec × T_enc</sup></div>
+        <p>Raw, real-valued, unbounded. Each entry is a learned compatibility score between a decoder query state and an encoder key state.</p>
+      </div>
+
+      <div class="matrix-card">
+        <div class="num">02 / ATTENTION</div>
+        <h3>Attention weights</h3>
+        <div class="shape">α ∈ [0,1]<sup>T_dec × T_enc</sup></div>
+        <p>Row-stochastic. Each row sums to 1 after softmax. This is the <em>soft alignment matrix</em> — dense, differentiable, and learned end-to-end.</p>
+      </div>
+
+      <div class="matrix-card">
+        <div class="num">03 / CONTEXT</div>
+        <h3>Context bundle</h3>
+        <div class="shape">C ∈ ℝ<sup>T_dec × d_h</sup></div>
+        <p>The result of <code>α · H</code> — one context vector per decoder step. Fed into the decoder alongside its own hidden state to predict the next token.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section id="code">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 05 — Implementation</div>
+      <h2>Bahdanau, in <em>PyTorch</em>.</h2>
+    </div>
+    <p class="lead">A compact reference implementation showing how the three matrices are assembled in code.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span>bahdanau.py</span>
+        <span>PyTorch</span>
+      </div>
+<pre><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+<span class="kw">class</span> <span class="var">BahdanauAttention</span>(nn.Module):
+    <span class="kw">def</span> __init__(self, enc_dim, dec_dim, attn_dim):
+        super().__init__()
+        self.W1 = nn.Linear(enc_dim, attn_dim, bias=<span class="kw">False</span>)
+        self.W2 = nn.Linear(dec_dim, attn_dim, bias=<span class="kw">False</span>)
+        self.v  = nn.Linear(attn_dim, <span class="num">1</span>, bias=<span class="kw">False</span>)
+
+    <span class="kw">def</span> forward(self, H_enc, s_prev):
+        <span class="com"># H_enc : (batch, T_enc, enc_dim)</span>
+        <span class="com"># s_prev: (batch, dec_dim)</span>
+
+        <span class="com"># 1. Score matrix e : (batch, T_enc)</span>
+        proj = torch.tanh(self.W1(H_enc) + self.W2(s_prev).unsqueeze(<span class="num">1</span>))
+        e = self.v(proj).squeeze(-<span class="num">1</span>)
+
+        <span class="com"># 2. Attention weights alpha : (batch, T_enc) — row-stochastic</span>
+        alpha = torch.softmax(e, dim=-<span class="num">1</span>)
+
+        <span class="com"># 3. Context vector c : (batch, enc_dim)</span>
+        c = torch.bmm(alpha.unsqueeze(<span class="num">1</span>), H_enc).squeeze(<span class="num">1</span>)
+
+        <span class="kw">return</span> c, alpha</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>Built with care · <a href="https://arxiv.org/abs/1409.0473" target="_blank" rel="noopener">Read the original paper</a></div>
+  <div style="margin-top: 1rem; color: var(--ink-faint);">Bahdanau, Cho, Bengio — Neural Machine Translation by Jointly Learning to Align and Translate (2014)</div>
+</footer>
+
+</body>
+</html>

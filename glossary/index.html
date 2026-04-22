@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Interviews Glossary — Reading Notes</title>
+<meta name="description" content="Comprehensive ML glossary covering data handling, model selection, evaluation metrics, and production deployment — 93 terms across four categories.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;
+  --accent-2: #ff6b4a;
+  --blue: #7aa7d9;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.masthead .brand { color: var(--ink); font-weight: 500; }
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; gap: 1.5rem; align-items: center; }
+.masthead nav a { color: var(--ink-dim); text-decoration: none; transition: color 0.2s; }
+.masthead nav a:hover { color: var(--accent); }
+.masthead nav a.back { color: var(--ink-faint); }
+.masthead nav a.back:hover { color: var(--ink); }
+.masthead nav .sep { color: var(--rule); }
+
+.hero {
+  padding: 6rem 2rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: end;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 2rem; right: 2rem;
+  width: 120px; height: 120px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+
+h1.title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+h1.title em { font-style: italic; font-weight: 400; color: var(--accent); }
+
+.hero-meta { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-dim); }
+
+.hero-meta .label {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+}
+
+.hero-meta .row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-meta .row:last-child { border-bottom: none; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+
+.section-header {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 3rem;
+  margin-bottom: 2.5rem;
+  align-items: start;
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--accent);
+  width: fit-content;
+}
+
+.section-num.blue  { color: var(--blue);     border-color: var(--blue); }
+.section-num.green { color: var(--green);    border-color: var(--green); }
+.section-num.red   { color: var(--accent-2); border-color: var(--accent-2); }
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h2 em { font-style: italic; color: var(--accent); }
+h2 em.blue  { color: var(--blue); }
+h2 em.green { color: var(--green); }
+h2 em.red   { color: var(--accent-2); }
+
+.lead {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 65ch;
+  margin-left: 180px;
+  padding-left: 3rem;
+  border-left: 1px solid var(--rule);
+  margin-bottom: 2.5rem;
+}
+
+.diagram-wrapper {
+  margin: 3rem 0 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.diagram-wrapper svg { width: 100%; height: auto; display: block; }
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+/* GLOSSARY TERMS */
+dl.terms { margin-top: 2rem; }
+
+.term {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 3rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+
+.term:first-child { border-top: 1px solid var(--rule); }
+
+dt {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.4;
+  padding-top: 0.1rem;
+}
+
+dt .abbr {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-style: normal;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  margin-top: 0.3rem;
+}
+
+dd {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+dd strong { font-weight: 500; color: var(--ink); }
+
+dd code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--bg-elev);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  color: var(--accent);
+  border: 1px solid var(--rule);
+}
+
+dd ul, dd ol {
+  margin: 0.75rem 0 0 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+dd li { color: var(--ink-dim); }
+
+dd .sub-list {
+  margin-top: 0.4rem;
+  padding-left: 1rem;
+}
+
+.term-count {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  margin-left: 180px;
+  padding-left: 3rem;
+  margin-bottom: 1rem;
+}
+
+footer {
+  margin-top: 4rem;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+footer a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--rule); }
+footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero > * { animation: fadeUp 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero > *:nth-child(2) { animation-delay: 0.15s; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 4rem 1.5rem 3rem; gap: 2rem; }
+  .hero::after { display: none; }
+  .section-header { grid-template-columns: 1fr; gap: 1rem; }
+  .lead, .term-count { margin-left: 0; padding-left: 0; border-left: none; }
+  .term { grid-template-columns: 1fr; gap: 0.5rem; }
+  dt { font-size: 1.1rem; }
+  .masthead { padding: 1rem; }
+  .masthead nav { gap: 0.75rem; font-size: 0.65rem; }
+  .container { padding: 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand">Reading <span>Notes</span></div>
+  <nav>
+    <a href="../" class="back">← Library</a>
+    <span class="sep">|</span>
+    <a href="#data">Data</a>
+    <a href="#model">Model</a>
+    <a href="#eval">Eval</a>
+    <a href="#prod">Production</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">ML Reference · 2026</div>
+    <h1 class="title">ML Interviews<br><em>Glossary.</em></h1>
+  </div>
+  <div class="hero-meta">
+    <div class="row"><span class="label">Terms</span><span>93 definitions</span></div>
+    <div class="row"><span class="label">Sections</span><span>Data · Model · Eval · Production</span></div>
+    <div class="row"><span class="label">Format</span><span>Reference glossary</span></div>
+    <div class="row"><span class="label">Source</span><span>ML Interview Prep (Exponent)</span></div>
+  </div>
+</div>
+
+<!-- PIPELINE OVERVIEW -->
+<section id="overview">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 00 — Overview</div>
+      <h2>The ML <em>pipeline</em>, mapped.</h2>
+    </div>
+    <p class="lead">This glossary covers the four stages of the ML lifecycle — from raw data handling through model training, evaluation, and production deployment. Each section maps to a stage in the diagram below.</p>
+
+    <div class="diagram-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 320" role="img" aria-label="ML pipeline: Data Handling → Model Training → Evaluation → Production">
+        <defs>
+          <pattern id="gl-grid" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#1c1c20" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="1100" height="320" fill="#0e0e10" rx="6"/>
+        <rect width="1100" height="320" fill="url(#gl-grid)" rx="6"/>
+        <text x="550" y="28" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#3a3a3e" letter-spacing="3">THE ML PIPELINE · CONCEPT OVERVIEW</text>
+
+        <!-- Arrows -->
+        <line x1="263" y1="170" x2="295" y2="170" stroke="#2a2a2e" stroke-width="1.5"/>
+        <polygon points="293,165 305,170 293,175" fill="#2a2a2e"/>
+        <line x1="528" y1="170" x2="560" y2="170" stroke="#2a2a2e" stroke-width="1.5"/>
+        <polygon points="558,165 570,170 558,175" fill="#2a2a2e"/>
+        <line x1="793" y1="170" x2="825" y2="170" stroke="#2a2a2e" stroke-width="1.5"/>
+        <polygon points="823,165 835,170 823,175" fill="#2a2a2e"/>
+
+        <!-- BOX 1: Data Handling (blue) -->
+        <rect x="30" y="48" width="233" height="248" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <rect x="30" y="48" width="233" height="4" rx="2" fill="#7aa7d9"/>
+        <text x="146" y="80" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7aa7d9" letter-spacing="2">01 / DATA</text>
+        <text x="146" y="112" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#f2efe8" font-style="italic">Data Handling</text>
+        <line x1="50" y1="125" x2="243" y2="125" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="50" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Scaling &amp; Normalization</text>
+        <text x="50" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Missing Data Imputation</text>
+        <text x="50" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">One-hot / TF-IDF Encoding</text>
+        <text x="50" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Word Embeddings</text>
+        <text x="50" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Bucketing &amp; Outlier Removal</text>
+        <text x="50" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#7aa7d9">·</text><text x="62" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Count Vectorizer</text>
+        <text x="50" y="258" font-family="'JetBrains Mono', monospace" font-size="10" fill="#4a6070">AIC · BIC · Transformations</text>
+        <text x="146" y="284" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#3a5870">13 terms</text>
+
+        <!-- BOX 2: Model Training (green) -->
+        <rect x="295" y="48" width="233" height="248" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <rect x="295" y="48" width="233" height="4" rx="2" fill="#8fb996"/>
+        <text x="411" y="80" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8fb996" letter-spacing="2">02 / MODEL</text>
+        <text x="411" y="112" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#f2efe8" font-style="italic">Model Training</text>
+        <line x1="315" y1="125" x2="508" y2="125" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="315" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Linear / Logistic Regression</text>
+        <text x="315" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Neural Networks</text>
+        <text x="315" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Decision Trees &amp; Forests</text>
+        <text x="315" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Gradient Boosting</text>
+        <text x="315" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Regularization (Lasso, Ridge)</text>
+        <text x="315" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8fb996">·</text><text x="327" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Clustering (K-means, Hier.)</text>
+        <text x="315" y="258" font-family="'JetBrains Mono', monospace" font-size="10" fill="#4a6050">Bias-Variance · Dropout · PCA</text>
+        <text x="411" y="284" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#3a5040">52 terms</text>
+
+        <!-- BOX 3: Evaluation (yellow) -->
+        <rect x="560" y="48" width="233" height="248" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <rect x="560" y="48" width="233" height="4" rx="2" fill="#e8c547"/>
+        <text x="676" y="80" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e8c547" letter-spacing="2">03 / EVAL</text>
+        <text x="676" y="112" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#f2efe8" font-style="italic">Evaluation</text>
+        <line x1="580" y1="125" x2="773" y2="125" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="580" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Accuracy</text>
+        <text x="580" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Precision &amp; Recall</text>
+        <text x="580" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">F1 Score</text>
+        <text x="580" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">ROC Curve / AUC</text>
+        <text x="580" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">MAE / MSE</text>
+        <text x="580" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e8c547">·</text><text x="592" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Class Imbalance</text>
+        <text x="580" y="258" font-family="'JetBrains Mono', monospace" font-size="10" fill="#6a6030">Bias-Variance tradeoff</text>
+        <text x="676" y="284" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#5a5020">9 terms</text>
+
+        <!-- BOX 4: Production (red/terracotta) -->
+        <rect x="825" y="48" width="233" height="248" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <rect x="825" y="48" width="233" height="4" rx="2" fill="#ff6b4a"/>
+        <text x="941" y="80" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ff6b4a" letter-spacing="2">04 / PRODUCTION</text>
+        <text x="941" y="112" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#f2efe8" font-style="italic">Production</text>
+        <line x1="845" y1="125" x2="1038" y2="125" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="845" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="146" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">A/B Testing &amp; Bandits</text>
+        <text x="845" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="164" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Canary / Shadow Deploy</text>
+        <text x="845" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="182" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Batch / Real-time Inference</text>
+        <text x="845" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="200" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Drift Monitoring</text>
+        <text x="845" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="218" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Model Compression</text>
+        <text x="845" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b4a">·</text><text x="857" y="236" font-family="'JetBrains Mono', monospace" font-size="10" fill="#a8a59e">Distribution Shift</text>
+        <text x="845" y="258" font-family="'JetBrains Mono', monospace" font-size="10" fill="#6a3020">Containers · Kubernetes</text>
+        <text x="941" y="284" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#5a2820">19 terms</text>
+      </svg>
+    </div>
+    <div class="diagram-caption">Fig. 1 — The ML lifecycle · four pipeline stages · 93 terms across four categories</div>
+  </div>
+</section>
+
+<!-- ===== SECTION 1: DATA HANDLING ===== -->
+<section id="data">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num blue">§ 01 — Data Handling</div>
+      <h2>Data <em class="blue">handling.</em></h2>
+    </div>
+    <p class="lead">Techniques for preprocessing, transforming, and engineering features from raw data before feeding it into a model.</p>
+    <p class="term-count">13 terms</p>
+
+    <dl class="terms">
+
+      <div class="term">
+        <dt>0-1 Scaling</dt>
+        <dd>A preprocessing technique that transforms feature values to all fall in the range of [0, 1]. Similar to standardization, this also helps machine learning algorithms learn by keeping features on comparable scales.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Akaike Information Criterion <span class="abbr">AIC</span></dt>
+        <dd>A way of evaluating how well a model fits a set of data while also balancing model complexity. Lower AIC values indicate a "better" model — the score is lower if the model has fewer parameters and a higher likelihood of having produced the data. Used for model selection when there are multiple candidates.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Bayes Information Criterion <span class="abbr">BIC</span></dt>
+        <dd>A way of evaluating and selecting models, similar to the AIC. The main practical difference is that BIC applies a stronger penalty to more complex models, especially as sample size increases.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Bucketing <span class="abbr">pd.cut</span></dt>
+        <dd>A type of feature engineering that bins continuous values into discrete buckets. For example, a feature representing someone's age could be bucketed into age ranges. These buckets can capture important information about patterns in the data that a raw continuous value may obscure.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Count Vectorizer</dt>
+        <dd>A way of feature-engineering unstructured text data. It iterates through a corpus of text to construct a vocabulary of all possible tokens. Every token is assigned an index. A piece of text is then converted to a vector where each index represents the number of occurrences of the corresponding token in that text.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Missing Data</dt>
+        <dd>
+          Values not present for certain features for some examples in your dataset. Many ML algorithms require all features to have defined values. Standard handling techniques:
+          <ul>
+            <li><strong>Remove:</strong> Remove examples that have missing feature values. Can also remove features entirely if too few examples have values for them.</li>
+            <li><strong>Fill in — Means:</strong> Fill in missing values with the average of all non-missing values for that feature.</li>
+            <li><strong>Fill in — Linear interpolation:</strong> For ordered data (e.g. time series), create a line between surrounding data points and use it to fill in missing values.</li>
+            <li><strong>Fill in — Clustering &amp; similarities:</strong> Assign examples with missing data to clusters based on similarity, then fill with statistics from that cluster (e.g. the cluster mean).</li>
+          </ul>
+        </dd>
+      </div>
+
+      <div class="term">
+        <dt>One-Hot Encoding</dt>
+        <dd>A way of handling categorical data for models that require numerical features. It creates a separate binary column for each possible category value, assigning <code>1</code> to the column matching the example's category and <code>0</code> to all others.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Percentile Interpolation</dt>
+        <dd>Inferring missing values using values drawn from the percentiles of the feature's distribution (e.g. the 25th, 50th, or 75th percentile).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Remove Outliers</dt>
+        <dd>In ML, outliers are examples that are not representative of general patterns in the data. Removing them can help models learn patterns aligned with the majority of training data. However, this should be done with care — outliers may contain important information depending on why they occur.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Standardization</dt>
+        <dd>A preprocessing technique that transforms feature values such that the distribution has a mean of 0 and a standard deviation of 1. Keeping features on the same scale helps many ML algorithms learn patterns more effectively.</dd>
+      </div>
+
+      <div class="term">
+        <dt>TF-IDF Vectorizers <span class="abbr">Term Frequency–Inverse Document Frequency</span></dt>
+        <dd>A modification of count vectorization that weights token frequencies by how often they appear across documents, to gauge the relative importance of each term. TF-IDF multiplies the term frequency (relative frequency within a document) by the inverse document frequency (log inverse of how many documents contain the term). Terms with high frequency within a document but low frequency across the corpus receive a higher score.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Transformations</dt>
+        <dd>Operations applied to input data to correctly prepare it for a machine learning model. Transformations can be applied to numerical, categorical, and text data. Examples include scaling, encoding, and tokenization.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Word Embeddings</dt>
+        <dd>A way of feature-engineering unstructured text to incorporate semantic meaning. Each word is assigned a learned vector (an embedding), trained to represent information about the word in context. Embeddings are typically a component of a model trained on a meaningful task, such as predicting the next word in a sequence.</dd>
+      </div>
+
+    </dl>
+  </div>
+</section>
+
+<!-- ===== SECTION 2: MODEL SELECTION & OPTIMIZATION ===== -->
+<section id="model">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num green">§ 02 — Model &amp; Optimization</div>
+      <h2>Model selection &amp; <em class="green">optimization.</em></h2>
+    </div>
+    <p class="lead">Algorithms, architectures, and training techniques for building models that generalize well to unseen data.</p>
+    <p class="term-count">52 terms</p>
+
+    <dl class="terms">
+
+      <div class="term">
+        <dt>Activation Functions</dt>
+        <dd>Functions applied within neural networks after a layer's linear transformation. Used to introduce nonlinearity into the function the network computes, enabling it to learn complex patterns beyond linear relationships.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Area Under the ROC Curve <span class="abbr">AUC</span></dt>
+        <dd>A classification metric measuring the total area under the ROC curve. A larger area indicates that changes in threshold lead to a larger change in true positive rate relative to false positive rate — meaning better overall performance across thresholds.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Autoregressive Integrated Moving Average <span class="abbr">ARIMA</span></dt>
+        <dd>A common statistical model used for forecasting time series data. Combines autoregression (using past values to predict future ones), differencing (to achieve stationarity), and a moving average component.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Bias-Variance Tradeoff</dt>
+        <dd>The expected generalization error of an ML model can be decomposed into bias (the difference between the expected prediction and the true value) and variance (the spread or instability of predictions across different training sets). Methods that reduce bias often increase variance, and vice versa.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Classification Method</dt>
+        <dd>A way of assigning examples to discrete categories given input data. Classification algorithms learn a decision boundary from labeled training examples and use it to predict the class of new inputs.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Coefficient Interpretation</dt>
+        <dd>One of the main benefits of linear regression. Learned coefficients indicate the expected change in the output for a one-unit increase in the corresponding input feature, holding all other features constant, which allows gauging the relative importance of each feature.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Cosine Similarity</dt>
+        <dd>A similarity measure for two vectors computed as their dot product divided by the product of their magnitudes — mathematically equivalent to the cosine of the angle between them. Results range from -1 (opposite directions) to 1 (same direction); 0 means the vectors are orthogonal.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Crop</dt>
+        <dd>An image preprocessing technique that takes a sub-region of the image as a training data point. Commonly used in computer vision because it can help a model focus on specific parts of an image and implicitly augments the training dataset.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Deep Learning</dt>
+        <dd>A subfield of machine learning focused on neural networks with many layers. Deep networks can learn hierarchical representations of data, enabling state-of-the-art performance on tasks such as image recognition, language modeling, and speech recognition.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Dropout</dt>
+        <dd>A regularization technique for training neural networks where nodes are randomly dropped (set to zero) on each forward pass. This reduces the capacity of the network during training and helps prevent overfitting by preventing co-adaptation of features.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Ent (Error-based splitting)</dt>
+        <dd>A method of determining the best split point for a node in a decision tree. It calculates the probability of incorrectly classifying an example based on all examples in a node, guiding the tree to split in ways that minimize classification error.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Epochs</dt>
+        <dd>The number of complete passes through the entire training dataset during model training. One epoch means the model has seen every training example once. Multiple epochs allow the model to refine its parameters iteratively.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Entropy</dt>
+        <dd>A measure of impurity or disorder in a set of data. In decision trees, entropy is calculated based on the proportions of elements in each class. A node with equal proportions of all classes has maximum entropy; a pure node (all one class) has zero entropy.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Euclidean Distance</dt>
+        <dd>The straight-line distance between two points — the same as the distance formula from 2D algebra, generalized to vectors of any dimension. Commonly used as a similarity or proximity measure in clustering, KNN, and other algorithms.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Exp() — Exponential Function</dt>
+        <dd>Used in many ML activation functions, particularly sigmoid and softmax. Properties that make it useful include producing a smooth, always-positive curve and being convenient for gradient-based optimization because its derivative equals itself.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Feature Importance</dt>
+        <dd>With tree-based methods, the relative importance of each feature can be computed by pooling the split criteria values (e.g. decrease in Gini impurity) for that feature across all trees in an ensemble. Higher aggregate values indicate features that contribute more to predictive performance.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Gini Index</dt>
+        <dd>A method of determining the best split point for a node in a decision tree. It calculates the probability of incorrectly classifying a randomly chosen element if it were randomly labeled according to the distribution of labels in the node. A Gini index of 0 indicates a pure node.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Gradient Boosting</dt>
+        <dd>An ensemble method that combines predictions from multiple weak learners (typically decision stumps — trees of height 1), trained in a stagewise fashion. Each subsequent tree learns to predict the residual errors of the previous ensemble, using the gradient of a chosen loss function to move predictions closer to true values.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Gradient Method</dt>
+        <dd>An optimization technique that uses the gradient of a function with respect to its parameters to take iterative steps toward a local or global minimum. Gradient descent is the most common example: parameters are updated in the direction opposite to the gradient.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Hierarchical Clustering</dt>
+        <dd>A type of clustering that organizes clusters into a hierarchy (a dendrogram). Can be constructed bottom-up (agglomerative: merging smaller clusters into larger ones) or top-down (divisive: splitting large clusters). Does not require specifying the number of clusters in advance.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Information Gain</dt>
+        <dd>A method of determining the best split point for a decision tree node. Information gain measures the reduction in entropy achieved by splitting the data on a given feature. It is calculated as the entropy of the parent node minus the weighted entropy of the resulting child nodes.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Inverse Optimization</dt>
+        <dd>An advanced concept that, unlike standard optimization which minimizes a known objective, works backward from observed decisions or outcomes to infer the objective function that would make those decisions optimal. Used in settings where the underlying goals are unknown but their outputs are observable.</dd>
+      </div>
+
+      <div class="term">
+        <dt>K-Means Clustering</dt>
+        <dd>An unsupervised algorithm that assigns data points to <em>k</em> centroids. Centroids are initially set to random values, then iteratively updated: each point is assigned to its nearest centroid, and each centroid is recomputed as the mean of all points assigned to it. Repeats until centroids stop moving (convergence).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Lasso Regression <span class="abbr">L1 Regularization</span></dt>
+        <dd>A modification of linear regression that adds the L1 norm of the weights to the loss function as a penalty. This drives some coefficients exactly to zero, effectively performing variable selection. Used for regularization and feature selection simultaneously.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Layers</dt>
+        <dd>Subunits in a neural network composed of interconnected nodes. Implemented as matrix multiplications. Different layer types (dense, convolutional, recurrent, attention) perform these multiplications in different ways, each suited to different data structures and tasks.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Linear Regression</dt>
+        <dd>An ML algorithm that models the relationship between inputs and output as the line (or hyperplane) of best fit — the linear equation that minimizes mean squared error. Produces interpretable coefficients and is a foundation for many more complex methods.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Log Odds</dt>
+        <dd>Defined as the natural logarithm of <em>p / (1 − p)</em>. Most relevant to logistic regression: rearranging the model equation shows that a linear combination of input features equals the log odds of the positive class. Increasing a feature by 1 increases the log odds by the corresponding coefficient.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Logistic Function</dt>
+        <dd>The generalized version of the sigmoid function. It squashes real-valued inputs to the range (0, 1), making it suitable for outputting probabilities. Used as the final activation in binary classification models and as a component of the softmax for multi-class problems.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Logistic Regression</dt>
+        <dd>A parametric model for classification. Takes a linear combination of input features and passes it through an activation function (sigmoid for binary, softmax for multi-class) to output predicted probabilities. Despite the name, it is a classification algorithm, not a regression one.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Loss Functions</dt>
+        <dd>Functions that compute the error between predicted values and actual values. During training, the optimizer adjusts model weights to minimize the loss on the training data. Common examples: mean squared error (regression), cross-entropy (classification).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Manhattan Distance</dt>
+        <dd>Measures the distance between two points as the sum of the absolute differences between their respective coordinate values — analogous to navigating a city grid. Can be calculated for vectors of any dimension. Sometimes preferred over Euclidean distance in high-dimensional spaces.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Nodes</dt>
+        <dd>Single units in a neural network. Each node receives a weighted sum of inputs from connected incoming nodes, applies an activation function to that sum, and passes the result to connected outgoing nodes. The collection of weighted connections defines the network's learned function.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Optimizers</dt>
+        <dd>Methods that speed up or improve the training process in neural networks. One common example is momentum, which computes the current gradient update as a rolling average of past and present gradients, helping to dampen oscillations and accelerate convergence. Other examples include Adam and RMSProp.</dd>
+      </div>
+
+      <div class="term">
+        <dt>P-Value Interpretation</dt>
+        <dd>The probability of observing a test statistic as extreme as (or more extreme than) the one calculated, under the assumption that the null hypothesis is true. A small p-value (typically &lt; 0.05) suggests the observed result is unlikely under the null hypothesis.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Principal Component Analysis <span class="abbr">PCA</span></dt>
+        <dd>An unsupervised dimensionality reduction technique that transforms original features into a set of orthogonal components that capture the maximum variance in the data. The components are ordered so the first retains the most variance, allowing lower-dimensional representations with minimal information loss.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Prophet</dt>
+        <dd>A forecasting framework written by Meta that simplifies modeling time series data. Provides built-in functionality for trend forecasting, seasonality modeling (yearly, weekly, daily), and evaluation. Designed to handle common time series quirks with minimal configuration.</dd>
+      </div>
+
+      <div class="term">
+        <dt>PyTorch</dt>
+        <dd>A Python framework for designing and training deep neural networks. Implements a tensor library with GPU acceleration, automatic gradient computation, backpropagation, and high-level abstractions for network layers, optimizers, and data loading. Increasingly supports distributed training.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Random Forests</dt>
+        <dd>An ensemble algorithm that combines predictions from multiple decision trees to improve generalization. Each tree is trained on a random subset of features and examples, reducing the tendency to overfit. The ensemble averages predictions (regression) or takes a majority vote (classification).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Receiver Operating Characteristic Curve <span class="abbr">ROC</span></dt>
+        <dd>A curve that plots the true positive rate (TPR / recall) on the y-axis against the false positive rate (FPR = FP / total negatives) on the x-axis at various classification thresholds. Used to gauge overall classifier performance independent of any single threshold choice.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Regularization</dt>
+        <dd>Techniques used to reduce overfitting on training data and improve performance on unseen data. Applied when a model fits training data too closely and generalizes poorly. Common forms include L1 (Lasso), L2 (Ridge), and dropout for neural networks.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Resize</dt>
+        <dd>An image preprocessing step that changes the spatial dimensions of images in a dataset. Necessary because trained neural network models have a fixed input size — the number of input pixels must match the number of parameters in the input layer.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Ridge Regression <span class="abbr">L2 Regularization</span></dt>
+        <dd>A variant of linear regression that adds the L2 norm of the weights to the loss function as a penalty. Unlike Lasso, this shrinks coefficients toward zero but rarely to exactly zero. Used for regularization and can also be used for variable selection.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Seasonality</dt>
+        <dd>In time series data, predictable periodic changes expected to repeat at a fixed frequency — most commonly yearly. For example, retail sales spiking during the holidays or energy usage peaking in summer. Seasonality must be modeled or removed for accurate forecasting.</dd>
+      </div>
+
+      <div class="term">
+        <dt>SHAP Values <span class="abbr">SHapley Additive exPlanations</span></dt>
+        <dd>A concept based in cooperative game theory used to compute feature importance. Models features as "players" and predictions as "payout." SHAP provides instance-level explanations, quantifying each feature's contribution to a specific prediction rather than just global importance.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Single Decision Tree</dt>
+        <dd>A model that uses a series of hierarchical if-then decisions to iteratively partition the training data and predict outcomes. Each internal node represents a feature split, each branch a decision, and each leaf a predicted value or class. Interpretable but prone to overfitting.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Stepwise Regression</dt>
+        <dd>A method of selecting variables for a regression model in a series of steps. On each iteration, variables are added or removed based on statistical significance (p-values or information criteria), then a new model is fit. Repeats until a stopping criterion is met.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Supervised Learning</dt>
+        <dd>A type of machine learning that predicts an outcome based on labeled input-output pairs. The algorithm learns to detect relationships between inputs and known outcomes during training, which it then uses to make predictions on new, unseen inputs.</dd>
+      </div>
+
+      <div class="term">
+        <dt>The Five Assumptions of Linear Regression</dt>
+        <dd>
+          Linear regression is valid when the following five conditions hold:
+          <ol>
+            <li><strong>Linearity:</strong> A linear relationship exists between input variables and the outcome.</li>
+            <li><strong>Independence:</strong> Observations are independent of each other.</li>
+            <li><strong>Normality:</strong> Residuals are normally distributed.</li>
+            <li><strong>Homoscedasticity:</strong> Residuals have constant variance across all input values.</li>
+            <li><strong>No autocorrelation:</strong> Residuals are independent of each other (no temporal or spatial patterns).</li>
+          </ol>
+          When these assumptions are violated, predicted outcomes may be incorrect, coefficient interpretations may be misleading, and confidence intervals may be inaccurate.
+        </dd>
+      </div>
+
+      <div class="term">
+        <dt>Tree-Based Models</dt>
+        <dd>Machine learning models based on decision trees, which use hierarchical if-then splits to partition training data and make predictions. Common splitting criteria include the Gini index and entropy (from information theory). Examples include single decision trees, random forests, and gradient boosting.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Unsupervised Learning</dt>
+        <dd>A type of machine learning that finds patterns based only on the features of the input, without using associated outcome labels. Common examples include clustering (grouping similar examples) and dimensionality reduction (finding compact representations).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Variable Selection</dt>
+        <dd>Choosing which input variables to include in a model based on specific criteria — typically whether those variables are predictive of the outcome. Methods include statistical tests, regularization-induced sparsity (Lasso), stepwise regression, and tree-based feature importance.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Variable Usefulness</dt>
+        <dd>Supervised ML algorithms often provide ways to measure which input variables are most important for predicting outcomes — for example, coefficient magnitude in linear models or feature importance in tree-based models. Assessing usefulness guides variable selection and statistical analysis.</dd>
+      </div>
+
+    </dl>
+  </div>
+</section>
+
+<!-- ===== SECTION 3: EVALUATION ===== -->
+<section id="eval">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 03 — Evaluation</div>
+      <h2>Evaluation methods &amp; <em>metrics.</em></h2>
+    </div>
+    <p class="lead">Metrics and methods for measuring how well a trained model performs, detecting failure modes, and comparing alternative models.</p>
+    <p class="term-count">9 terms</p>
+
+    <dl class="terms">
+
+      <div class="term">
+        <dt>Accuracy</dt>
+        <dd>A classification metric: the total number of correctly predicted examples divided by the total number of examples. Not suitable for class-imbalanced datasets — a model predicting all examples as the majority class can achieve high accuracy while being useless for detecting the minority class.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Area Under the ROC Curve <span class="abbr">AUC</span></dt>
+        <dd>A classification metric measuring the total area under the ROC curve. A larger area indicates that changes in threshold lead to a larger change in true positive rate compared to false positive rate — meaning better overall discriminative performance across all thresholds.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Class Imbalance</dt>
+        <dd>A difference in the proportions of each class in training data. Training on imbalanced data can produce models that only perform well on frequent classes. Handling strategies include oversampling (e.g. SMOTE), undersampling, and cost-sensitive learning, though results are empirically mixed and dataset-dependent.</dd>
+      </div>
+
+      <div class="term">
+        <dt>F1 Score</dt>
+        <dd>A classification metric that computes the harmonic mean of precision and recall: <code>2 × (precision × recall) / (precision + recall)</code>. Useful when both false positives and false negatives are costly, or when class imbalance makes accuracy misleading.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Mean Absolute Error <span class="abbr">MAE</span></dt>
+        <dd>A regression metric that measures the mean of the absolute differences between predicted and actual values. More appropriate than MSE when data contains outliers, since it does not square the errors — extreme errors are not disproportionately amplified.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Mean Squared Error <span class="abbr">MSE</span></dt>
+        <dd>A regression metric measuring the average of the squared differences between predicted and actual values. Squaring errors penalizes large deviations more heavily than small ones, making MSE sensitive to outliers. Its gradient is smooth, which makes it convenient for gradient-based optimization.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Precision</dt>
+        <dd>A classification metric: how many of the examples predicted as positive were actually positive. Calculated as <code>TP / (TP + FP)</code>. High precision means the model rarely calls something positive when it is not. Critical when false positives are costly (e.g. spam filtering, medical diagnosis).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Receiver Operating Characteristic Curve <span class="abbr">ROC</span></dt>
+        <dd>A curve plotting true positive rate (TPR = recall) on the y-axis against false positive rate (FPR = FP / total negatives) on the x-axis at various classification thresholds. Sweeping from threshold 1.0 to 0.0 traces the curve. An ideal classifier hugs the top-left corner.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Recall <span class="abbr">Sensitivity · True Positive Rate</span></dt>
+        <dd>A classification metric: how many of the actual positive examples the model correctly identified. Calculated as <code>TP / (TP + FN)</code>. High recall means the model misses few positives. Critical when false negatives are costly (e.g. disease screening, fraud detection).</dd>
+      </div>
+
+    </dl>
+  </div>
+</section>
+
+<!-- ===== SECTION 4: ML IN PRODUCTION ===== -->
+<section id="prod">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num red">§ 04 — Production</div>
+      <h2>ML in <em class="red">production.</em></h2>
+    </div>
+    <p class="lead">Strategies and concepts for deploying, monitoring, and maintaining machine learning models in live systems at scale.</p>
+    <p class="term-count">19 terms</p>
+
+    <dl class="terms">
+
+      <div class="term">
+        <dt>A/B Testing</dt>
+        <dd>An experimentation process used to compare two model versions. A control group receives the existing model and a test group receives the new model; a metric of interest is measured for each. Hypothesis testing determines whether the difference is statistically significant. The most common method for evaluating models before full deployment.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Bandits</dt>
+        <dd>Algorithms that balance exploration (trying different options with unknown potential rewards) and exploitation (continuing with options known to perform well). In ML, bandit algorithms can be used to evaluate and select between models in production, adapting traffic allocation based on observed performance.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Batch Prediction</dt>
+        <dd>A type of model inference that runs asynchronously — not in direct response to a user request. Triggered as a scheduled job or pipeline step. Useful for precomputing results (e.g. user embeddings, recommendations) where features are known in advance and real-time latency is not required.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Canary Release</dt>
+        <dd>A deployment technique for evaluating a new model without fully impacting users. The new model runs in parallel with the existing one; a small portion of traffic is routed to it. Traffic is increased gradually depending on performance. Allows early detection of issues before full rollout.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Concept Drift</dt>
+        <dd>A type of distribution shift in which the relationship between input features and the target variable changes over time — <em>P(Y | X)</em> shifts. The model's learned decision boundary no longer reflects the true underlying process, leading to degraded performance even if input distributions are stable.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Containers</dt>
+        <dd>A unit of software that encapsulates source code, dependencies, and configuration for a service into a portable, isolated environment. Containers (e.g. Docker) make deployments reproducible and isolate ML services from other parts of a system.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Covariate Shift</dt>
+        <dd>A type of distribution shift in which the distribution of the model's input features changes between training and deployment — <em>P(X)</em> shifts — while the conditional relationship <em>P(Y | X)</em> remains the same. Can cause model predictions to degrade even if the model's learned function is still correct.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Edge Computing</dt>
+        <dd>Moving computations to the "edge" — running inference on the consumer device (mobile phone, laptop, embedded device) rather than on remote servers. Reduces latency, network usage, and privacy concerns, but requires model compression to fit hardware constraints.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Feature Flags</dt>
+        <dd>Configuration switches used to enable or disable features or models in production without deploying new code. Useful for A/B testing (directing traffic to different model versions) and canary releases (gradually increasing exposure to a new model).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Kubernetes</dt>
+        <dd>An open-source container orchestration platform for deployment and scaling. Can efficiently manage compute resources, auto-scale services based on load, create complex multi-container applications, and monitor running services. Widely used for deploying ML inference services.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Label Shift</dt>
+        <dd>A type of distribution shift in which the distribution of the model's target variable (labels) changes between training and deployment — <em>P(Y)</em> shifts — while <em>P(X | Y)</em> remains stable. Common in domains where the prevalence of a class changes over time (e.g. a disease becoming more or less common).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Model Compression</dt>
+        <dd>Techniques for making a model smaller to reduce inference latency and memory footprint. Common methods include:
+          <ul>
+            <li><strong>Low-rank factorization:</strong> Decomposing large weight matrices into smaller ones.</li>
+            <li><strong>Quantization:</strong> Reducing the numerical precision of weights (e.g. float32 → int8).</li>
+            <li><strong>Knowledge distillation:</strong> Training a smaller "student" model to mimic a larger "teacher" model.</li>
+          </ul>
+        </dd>
+      </div>
+
+      <div class="term">
+        <dt>Model Drift</dt>
+        <dd>Degradation of a model's production performance over time, caused by changes in the relationship between input features and the target variable. A broader term encompassing concept drift, covariate shift, and label shift. Requires regular monitoring and retraining to address.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Model Retraining</dt>
+        <dd>Training a model further to restore or improve performance that has degraded in production. Can be done offline on a fixed dataset or in an automated pipeline that continuously ingests new labeled data. The trigger is typically a detected drop in a monitored production metric.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Monitoring</dt>
+        <dd>Continuously watching metrics and behavior of a deployed ML model. Includes tracking distributions of input features and predictions over time, measuring inference latency, and flagging anomalies that might indicate drift or bugs. Essential for maintaining model quality after deployment.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Prediction Service</dt>
+        <dd>A component of a system or pipeline that serves predictions from a trained ML model. Receives feature inputs, runs inference through the model, and returns predictions. Can serve real-time requests (low latency) or batch jobs (high throughput).</dd>
+      </div>
+
+      <div class="term">
+        <dt>Real-Time Prediction</dt>
+        <dd>A type of model inference served quickly in direct response to a request — typically with latency requirements in the milliseconds-to-seconds range. Examples include search ranking, recommendation retrieval, and fraud detection at transaction time.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Shadow Deployment</dt>
+        <dd>A deployment technique for evaluating a new model without impacting users. The new model runs in parallel with the production model; predictions are logged but <em>not</em> served to users. Allows safe comparison of model outputs without any risk to the user experience.</dd>
+      </div>
+
+      <div class="term">
+        <dt>Telemetry Data</dt>
+        <dd>The collection of data, logs, and metrics from a running system, used for monitoring and debugging. In ML systems, telemetry includes prediction logs, input feature distributions, latency measurements, and error rates. Essential for detecting drift and diagnosing production issues.</dd>
+      </div>
+
+    </dl>
+  </div>
+</section>
+
+<footer>
+  <div>
+    ML Interviews Glossary · <a href="../">← Reading Notes library</a>
+  </div>
+  <div style="margin-top: 0.75rem;">Source material: ML Interview Prep — Exponent · 93 terms · April 2026</div>
+</footer>
+
+</body>
+</html>

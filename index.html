@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Notes — Technical Literature</title>
+<meta name="description" content="Visual essays and reference material on machine learning — with diagrams, equations, and code.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0e10;
+  --bg-elev: #16161a;
+  --ink: #f2efe8;
+  --ink-dim: #a8a59e;
+  --ink-faint: #565450;
+  --rule: #2a2a2e;
+  --accent: #e8c547;
+  --accent-2: #ff6b4a;
+  --blue: #7aa7d9;
+  --green: #8fb996;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  z-index: 1000;
+  mix-blend-mode: overlay;
+}
+
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 0;
+  background: rgba(14, 14, 16, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.masthead .brand { color: var(--ink); font-weight: 500; }
+.masthead .brand span { color: var(--accent); }
+.masthead nav { display: flex; gap: 2rem; }
+.masthead nav a { color: var(--ink-dim); text-decoration: none; transition: color 0.2s; }
+.masthead nav a:hover { color: var(--accent); }
+
+.hero {
+  padding: 6rem 2rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: end;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 2rem; right: 2rem;
+  width: 120px; height: 120px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+
+h1.title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+h1.title em { font-style: italic; font-weight: 400; color: var(--accent); }
+
+.hero-meta { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-dim); }
+
+.hero-meta .label {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+}
+
+.hero-meta .row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-meta .row:last-child { border-bottom: none; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+section { padding: 5rem 0; border-top: 1px solid var(--rule); }
+
+.section-header {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  align-items: start;
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--accent);
+  width: fit-content;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h2 em { font-style: italic; color: var(--accent); }
+
+.lead {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 65ch;
+  margin-left: 180px;
+  padding-left: 3rem;
+  border-left: 1px solid var(--rule);
+}
+
+.diagram-wrapper {
+  margin: 3rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.diagram-wrapper svg { width: 100%; height: auto; display: block; }
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+a.article-card, .article-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+a.article-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+
+.article-card.coming-soon { opacity: 0.4; }
+
+.card-badge {
+  position: absolute;
+  top: 1.25rem; right: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+
+.coming-soon .card-badge { color: var(--ink-faint); border-color: var(--rule); }
+
+.card-tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.article-card h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.75rem;
+  font-style: italic;
+  margin-bottom: 0.25rem;
+  line-height: 1.1;
+}
+
+.card-subtitle {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.card-desc { color: var(--ink-dim); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.card-meta .arrow { margin-left: auto; color: var(--accent); font-size: 1rem; transition: transform 0.2s; }
+a.article-card:hover .arrow { transform: translateX(4px); }
+
+footer {
+  margin-top: 4rem;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero > * { animation: fadeUp 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero > *:nth-child(2) { animation-delay: 0.15s; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 4rem 1.5rem 3rem; gap: 2rem; }
+  .hero::after { display: none; }
+  .section-header { grid-template-columns: 1fr; gap: 1rem; }
+  .lead { margin-left: 0; padding-left: 0; border-left: none; }
+  .articles-grid { grid-template-columns: 1fr; }
+  .masthead { padding: 1rem; }
+  .masthead nav { gap: 1rem; font-size: 0.65rem; }
+  .container { padding: 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand">Reading <span>Notes</span></div>
+  <nav>
+    <a href="#map">Map</a>
+    <a href="#articles">Articles</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">Technical Reading Notes · 2026</div>
+    <h1 class="title">Notes from<br>the <em>technical</em><br>literature.</h1>
+  </div>
+  <div class="hero-meta">
+    <div class="row"><span class="label">Published</span><span>2 articles</span></div>
+    <div class="row"><span class="label">Domain</span><span>NLP · Machine Learning</span></div>
+    <div class="row"><span class="label">Format</span><span>Visual essays · Reference</span></div>
+    <div class="row"><span class="label">Updated</span><span>April 2026</span></div>
+  </div>
+</div>
+
+<section id="map">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 01 — Overview</div>
+      <h2>A <em>reading</em> path.</h2>
+    </div>
+    <p class="lead">These notes trace a path through the attention mechanism literature — from the seq2seq origins of alignment to the multi-head attention underpinning modern language models.</p>
+
+    <div class="diagram-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 260" role="img" aria-label="NLP reading path: Seq2Seq → Bahdanau Attention (current) → Luong → Transformers → LLMs">
+        <defs>
+          <pattern id="rp-grid" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#1c1c20" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="1100" height="260" fill="#0e0e10" rx="6"/>
+        <rect width="1100" height="260" fill="url(#rp-grid)" rx="6"/>
+        <text x="550" y="28" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#3a3a3e" letter-spacing="3">NLP READING PATH · ATTENTION MECHANISMS</text>
+
+        <!-- Connections -->
+        <line x1="220" y1="132" x2="294" y2="132" stroke="#2a2a2e" stroke-width="1.5"/>
+        <polygon points="292,127 304,132 292,137" fill="#2a2a2e"/>
+        <line x1="468" y1="132" x2="536" y2="132" stroke="#2a2a2e" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <polygon points="534,127 546,132 534,137" fill="#2a2a2e"/>
+        <line x1="706" y1="132" x2="776" y2="132" stroke="#222226" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <polygon points="774,127 786,132 774,137" fill="#222226"/>
+        <line x1="946" y1="132" x2="1012" y2="132" stroke="#1e1e22" stroke-width="1.5" stroke-dasharray="4,5"/>
+        <polygon points="1010,127 1022,132 1010,137" fill="#1e1e22"/>
+
+        <!-- Node 1: Seq2Seq -->
+        <rect x="50" y="78" width="170" height="108" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="135" y="102" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#383838" letter-spacing="2">00 / PREREQ</text>
+        <text x="135" y="128" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" fill="#484848" font-style="italic">Seq2Seq</text>
+        <text x="135" y="150" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#383838">RNN · LSTM</text>
+        <text x="135" y="168" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#2e2e32">encoder–decoder</text>
+
+        <!-- Node 2: Bahdanau (CURRENT) -->
+        <rect x="289" y="54" width="182" height="156" rx="5" fill="none" stroke="#e8c547" stroke-width="6" opacity="0.1"/>
+        <rect x="294" y="58" width="174" height="148" rx="4" fill="#17170d" stroke="#e8c547" stroke-width="1.5"/>
+        <circle cx="453" cy="74" r="4.5" fill="#e8c547"/>
+        <text x="317" y="88" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e8c547" letter-spacing="2">01 / CURRENT</text>
+        <text x="381" y="122" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="22" fill="#f2efe8" font-style="italic">Bahdanau</text>
+        <text x="381" y="148" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8c547" letter-spacing="1">Attention · 2014</text>
+        <text x="381" y="170" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#a8a59e">soft alignment · additive</text>
+        <text x="381" y="187" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#888880">score fn: FFN + tanh</text>
+
+        <!-- Node 3: Luong -->
+        <rect x="536" y="78" width="170" height="108" rx="3" fill="#16161a" stroke="#2a2a2e" stroke-width="1"/>
+        <text x="621" y="102" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#484850" letter-spacing="2">02 / NEXT</text>
+        <text x="621" y="128" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" fill="#595960" font-style="italic">Luong</text>
+        <text x="621" y="150" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#3c3c42">Attention · 2015</text>
+        <text x="621" y="168" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#2e2e32">multiplicative</text>
+
+        <!-- Node 4: Transformers -->
+        <rect x="776" y="78" width="170" height="108" rx="3" fill="#16161a" stroke="#1e1e22" stroke-width="1"/>
+        <text x="861" y="102" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#363638" letter-spacing="2">03 / FUTURE</text>
+        <text x="861" y="128" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" fill="#404042" font-style="italic">Transformers</text>
+        <text x="861" y="150" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#2c2c2e">Self-Attn · 2017</text>
+        <text x="861" y="168" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#252528">multi-head</text>
+
+        <!-- Node 5: LLMs -->
+        <rect x="1016" y="92" width="68" height="80" rx="3" fill="#141416" stroke="#1a1a1e" stroke-width="1"/>
+        <text x="1050" y="127" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="14" fill="#2e2e30" font-style="italic">LLMs</text>
+        <text x="1050" y="148" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#242426">BERT · GPT</text>
+        <text x="1050" y="163" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#1e1e20">horizon →</text>
+
+        <!-- Legend -->
+        <circle cx="50" cy="232" r="4" fill="#383838"/>
+        <text x="60" y="236" font-family="'JetBrains Mono', monospace" font-size="9" fill="#383838">prerequisite</text>
+        <circle cx="170" cy="232" r="4" fill="#e8c547"/>
+        <text x="180" y="236" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e8c547">current reading</text>
+        <circle cx="320" cy="232" r="4" fill="#383838" opacity="0.4"/>
+        <text x="330" y="236" font-family="'JetBrains Mono', monospace" font-size="9" fill="#565450">upcoming</text>
+        <line x1="418" y1="232" x2="442" y2="232" stroke="#2a2a2e" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="449" y="236" font-family="'JetBrains Mono', monospace" font-size="9" fill="#383838">path not yet taken</text>
+      </svg>
+    </div>
+    <div class="diagram-caption">Fig. 1 — The attention mechanism reading path · seq2seq foundations → modern LLMs</div>
+  </div>
+</section>
+
+<section id="articles">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-num">§ 02 — Articles</div>
+      <h2>Visual <em>essays</em> &amp; reference.</h2>
+    </div>
+
+    <div class="articles-grid">
+
+      <a href="bahdanau-site/" class="article-card">
+        <div class="card-badge">Published</div>
+        <div class="card-tag">NLP · Attention</div>
+        <h3>Bahdanau Attention</h3>
+        <p class="card-subtitle">The Alignment Matrix</p>
+        <p class="card-desc">A visual walkthrough of how additive attention forms a soft alignment matrix between source and target sequences. Covers the score function, attention weights, context vectors, and a PyTorch reference implementation.</p>
+        <div class="card-meta">
+          <span>~4 min read</span>
+          <span>Bahdanau et al., 2014</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="glossary/" class="article-card">
+        <div class="card-badge">Published</div>
+        <div class="card-tag">ML · Reference</div>
+        <h3>ML Interviews Glossary</h3>
+        <p class="card-subtitle">93 Terms · Four Categories</p>
+        <p class="card-desc">A comprehensive reference glossary covering data handling, model selection and optimization, evaluation metrics, and ML in production — organized for ML interview preparation, with an overview pipeline diagram.</p>
+        <div class="card-meta">
+          <span>Reference</span>
+          <span>93 terms</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <div class="article-card coming-soon">
+        <div class="card-badge">Coming Soon</div>
+        <div class="card-tag">NLP · Attention</div>
+        <h3>Luong Attention</h3>
+        <p class="card-subtitle">Multiplicative vs. Additive</p>
+        <p class="card-desc">How Luong's attention (2015) simplifies alignment scoring by replacing the feed-forward network with a dot-product, and when each variant is preferable in practice.</p>
+        <div class="card-meta">
+          <span>~5 min read</span>
+          <span>Luong et al., 2015</span>
+        </div>
+      </div>
+
+      <div class="article-card coming-soon">
+        <div class="card-badge">Coming Soon</div>
+        <div class="card-tag">NLP · Architecture</div>
+        <h3>Attention Is All You Need</h3>
+        <p class="card-subtitle">The Transformer Architecture</p>
+        <p class="card-desc">Multi-head self-attention, positional encodings, and why dispensing with recurrence leads to a more parallelizable and ultimately more powerful architecture.</p>
+        <div class="card-meta">
+          <span>~8 min read</span>
+          <span>Vaswani et al., 2017</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>Technical reading notes — built with care · April 2026</div>
+</footer>
+
+</body>
+</html>
